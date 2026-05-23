@@ -4,11 +4,11 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Current Phase
 
-- Foundation setup
+- Editor shell foundation
 
 ## Current Goal
 
-- Prepare the next feature unit on top of the completed dark-only design system foundation.
+- Prepare the next feature unit on top of the completed editor chrome components.
 
 ## Completed
 
@@ -20,6 +20,11 @@ Update this file whenever the current phase, active feature, or implementation s
 - Verified the required primitives and shared utilities with `npm run lint` and `npm run build`.
 - Restored `app/page.tsx` to a minimal homepage after removing the temporary design-system smoke test.
 - Updated `app/page.tsx` to use the generated `Button` component instead of a raw HTML `<button>`.
+- Built the reusable editor chrome components from `context/feature-specs/feature-specs/02-editor-chrome.md`.
+- Added `components/editor/editor-navbar.tsx` with a fixed-height top navbar and sidebar toggle state affordance.
+- Added `components/editor/project-sidebar.tsx` as a floating, sliding project panel with tabs, empty states, and a bottom `New Project` action.
+- Kept the editor chrome components available without mounting them from `app/layout.tsx`.
+- Verified the editor chrome unit with `npm run lint` and `npm run build`.
 
 ## In Progress
 
@@ -27,7 +32,7 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Next Up
 
-- Start the next scoped feature unit using the new shared UI primitives and tokenized dark theme.
+- Mount the editor chrome only when a future feature spec explicitly requires it.
 
 ## Open Questions
 
@@ -42,3 +47,4 @@ Update this file whenever the current phase, active feature, or implementation s
 
 - Current feature unit is based on `context/feature-specs/feature-specs/01-design-system.md`.
 - `app/layout.tsx` now applies the `dark` class at the root so shadcn dark variants remain active without a light mode.
+- Active feature unit has moved to `context/feature-specs/feature-specs/02-editor-chrome.md`.
