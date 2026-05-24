@@ -4,11 +4,11 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Current Phase
 
-- Project dialogs and editor home
+- Prisma schema and data layer foundation
 
 ## Current Goal
 
-- Build the `/editor` home screen and project dialogs using mock data only.
+- Add the project Prisma models, cached Prisma client singleton, and first migration.
 
 ## Completed
 
@@ -50,6 +50,11 @@ Update this file whenever the current phase, active feature, or implementation s
 - Added wired Create, Rename, and Delete project dialogs, including live slug preview, rename autofocus, Enter-to-submit forms, and destructive delete confirmation styling.
 - Updated the project sidebar to render mock project lists, show rename/delete actions only for owned projects, wire all dialog entry points, and add a mobile backdrop scrim that closes the sidebar on outside tap.
 - Verified the project dialogs and editor home unit with `npm run lint` and `npm run build`.
+- Switched Prisma config to use the `prisma/` schema directory so the data layer can be split into multiple schema files.
+- Added `prisma/models/project.prisma` with the `ProjectStatus` enum plus `Project` and `ProjectCollaborator` models, including the required relation, indexes, unique constraint, and cascade delete behavior from `05-prisma.md`.
+- Added `lib/prisma.ts` as a cached Prisma singleton that uses Prisma Accelerate for `prisma+postgres://` URLs and `@prisma/adapter-pg` for direct PostgreSQL URLs.
+- Created and applied the first Prisma migration at `prisma/migrations/20260524141620_init_project_data_layer/migration.sql`.
+- Generated the Prisma client into `app/generated/prisma` and verified the Prisma data layer with `npx prisma validate`, `npx prisma migrate dev`, `npx prisma generate`, and `npm run build`.
 
 ## In Progress
 
@@ -57,7 +62,7 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Next Up
 
-- Build the next feature unit on top of the mock-dialog editor home.
+- Build the next feature unit on top of the Prisma-backed project data layer.
 
 ## Open Questions
 
@@ -74,3 +79,4 @@ Update this file whenever the current phase, active feature, or implementation s
 - `app/layout.tsx` now applies the `dark` class at the root so shadcn dark variants remain active without a light mode.
 - Active feature unit has moved to `context/feature-specs/feature-specs/02-editor-chrome.md`.
 - Active project dialog work follows `context/feature-specs/feature-specs/04-project-dialogs.md`.
+- Active data layer work follows `context/feature-specs/feature-specs/05-prisma.md`.
