@@ -4,11 +4,11 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Current Phase
 
-- Editor shell foundation
+- Project dialogs and editor home
 
 ## Current Goal
 
-- Wire Clerk authentication into the existing Next.js shell.
+- Build the `/editor` home screen and project dialogs using mock data only.
 
 ## Completed
 
@@ -43,7 +43,13 @@ Update this file whenever the current phase, active feature, or implementation s
 - Tightened the left auth panel typography again so its heading, supporting copy, and feature list sit in the same visual size range as the right-side Clerk card.
 - Simplified the auth left panel back to a text-only presentation without decorative gradients or icon cards so it stays aligned with `03-auth.md`.
 - Added `/sign-in(.*)` and `/sign-up(.*)` fallback public routes in `proxy.ts` so auth pages remain reachable even if Clerk env URLs are unset.
+- Added `/` to the public route list in `proxy.ts` so the home page redirect logic can run before auth protection redirects unauthenticated users.
 - Verified the auth setup with `clerk doctor`, `npm run lint`, and `npm run build`.
+- Replaced the temporary `/editor` center panel with the minimal home screen from `04-project-dialogs.md`, including the heading, description, and `New Project` CTA.
+- Added a dedicated `useProjectDialogState` hook to manage project dialog mode, form state, and loading state with mock owned/shared project data only.
+- Added wired Create, Rename, and Delete project dialogs, including live slug preview, rename autofocus, Enter-to-submit forms, and destructive delete confirmation styling.
+- Updated the project sidebar to render mock project lists, show rename/delete actions only for owned projects, wire all dialog entry points, and add a mobile backdrop scrim that closes the sidebar on outside tap.
+- Verified the project dialogs and editor home unit with `npm run lint` and `npm run build`.
 
 ## In Progress
 
@@ -51,7 +57,7 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Next Up
 
-- Build the next feature unit on top of the authenticated editor shell.
+- Build the next feature unit on top of the mock-dialog editor home.
 
 ## Open Questions
 
@@ -67,4 +73,4 @@ Update this file whenever the current phase, active feature, or implementation s
 - Current feature unit is based on `context/feature-specs/feature-specs/01-design-system.md`.
 - `app/layout.tsx` now applies the `dark` class at the root so shadcn dark variants remain active without a light mode.
 - Active feature unit has moved to `context/feature-specs/feature-specs/02-editor-chrome.md`.
-- Active auth work follows `context/feature-specs/feature-specs/03-auth.md`.
+- Active project dialog work follows `context/feature-specs/feature-specs/04-project-dialogs.md`.
