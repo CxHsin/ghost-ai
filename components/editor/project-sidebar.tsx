@@ -2,14 +2,14 @@
 
 import { FolderKanban, Pencil, Plus, Trash2, X } from "lucide-react";
 
+import { type ProjectListItem } from "@/components/editor/project-list-item";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { type MockProject } from "@/components/editor/mock-projects";
 
 interface ProjectSidebarProps {
   isOpen: boolean;
-  ownedProjects: MockProject[];
-  sharedProjects: MockProject[];
+  ownedProjects: ProjectListItem[];
+  sharedProjects: ProjectListItem[];
   onCreateProject: () => void;
   onClose: () => void;
   onDeleteProject: (projectId: string) => void;
@@ -37,7 +37,7 @@ function ProjectList({
   onRenameProject,
 }: {
   emptyLabel: string;
-  projects: MockProject[];
+  projects: ProjectListItem[];
   onDeleteProject: (projectId: string) => void;
   onRenameProject: (projectId: string) => void;
 }) {
@@ -58,7 +58,7 @@ function ProjectList({
                 {project.name}
               </p>
               <p className="mt-1 truncate font-mono text-xs text-copy-muted">
-                {project.slug}
+                {project.roomId}
               </p>
             </div>
 

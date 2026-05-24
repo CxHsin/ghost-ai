@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 interface ProjectDialogsProps {
   activeDialog: "create" | "rename" | "delete" | null;
   currentProjectName: string | null;
+  errorMessage: string | null;
   isLoading: boolean;
   onClose: () => void;
   onCreate: () => void;
@@ -23,7 +24,7 @@ interface ProjectDialogsProps {
   onRename: () => void;
   onNameChange: (value: string) => void;
   projectName: string;
-  slugPreview: string;
+  roomIdPreview: string;
 }
 
 function DialogShell({
@@ -59,9 +60,22 @@ function DialogShell({
   );
 }
 
+function DialogError({ errorMessage }: { errorMessage: string | null }) {
+  if (!errorMessage) {
+    return null;
+  }
+
+  return (
+    <div className="rounded-2xl border border-state-error/30 bg-state-error/10 px-4 py-3 text-sm leading-6 text-copy-secondary">
+      {errorMessage}
+    </div>
+  );
+}
+
 export function ProjectDialogs({
   activeDialog,
   currentProjectName,
+  errorMessage,
   isLoading,
   onClose,
   onCreate,
@@ -69,7 +83,7 @@ export function ProjectDialogs({
   onRename,
   onNameChange,
   projectName,
-  slugPreview,
+  roomIdPreview,
 }: ProjectDialogsProps) {
   function handleOpenChange(open: boolean) {
     if (!open) {
@@ -88,9 +102,11 @@ export function ProjectDialogs({
         open={activeDialog === "create"}
         onOpenChange={handleOpenChange}
         title="Create Project"
-        description="Start a new architecture workspace with a project name and slug preview."
+        description="Start a new architecture workspace with a project name and room ID preview."
       >
         <form onSubmit={(event) => handleSubmit(event, onCreate)} className="space-y-5">
+          <DialogError errorMessage={errorMessage} />
+
           <div className="space-y-2">
             <label
               htmlFor="create-project-name"
@@ -109,9 +125,9 @@ export function ProjectDialogs({
 
           <div className="rounded-2xl border border-surface-border bg-base/70 px-4 py-3">
             <p className="text-xs uppercase tracking-[0.18em] text-copy-faint">
-              Slug preview
+              Room ID preview
             </p>
-            <p className="mt-2 font-mono text-sm text-brand">{slugPreview}</p>
+            <p className="mt-2 font-mono text-sm text-brand">{roomIdPreview}</p>
           </div>
 
           <DialogFooter className="-mx-6 -mb-6 rounded-b-3xl border-surface-border bg-subtle/60 px-6 py-4">
@@ -131,11 +147,13 @@ export function ProjectDialogs({
         title="Rename Project"
         description={
           currentProjectName
-            ? `Rename ${currentProjectName} and update its slug preview.`
+            ? `Rename ${currentProjectName}.`
             : "Rename the selected project."
         }
       >
         <form onSubmit={(event) => handleSubmit(event, onRename)} className="space-y-5">
+          <DialogError errorMessage={errorMessage} />
+
           <div className="space-y-2">
             <label
               htmlFor="rename-project-name"
@@ -150,13 +168,6 @@ export function ProjectDialogs({
               onChange={(event) => onNameChange(event.target.value)}
               className="h-10 rounded-xl border-surface-border-subtle bg-base text-copy-primary"
             />
-          </div>
-
-          <div className="rounded-2xl border border-surface-border bg-base/70 px-4 py-3">
-            <p className="text-xs uppercase tracking-[0.18em] text-copy-faint">
-              Slug preview
-            </p>
-            <p className="mt-2 font-mono text-sm text-brand">{slugPreview}</p>
           </div>
 
           <DialogFooter className="-mx-6 -mb-6 rounded-b-3xl border-surface-border bg-subtle/60 px-6 py-4">
@@ -181,6 +192,8 @@ export function ProjectDialogs({
         }
       >
         <div className="space-y-5">
+          <DialogError errorMessage={errorMessage} />
+
           <div className="rounded-2xl border border-state-error/30 bg-state-error/10 px-4 py-3 text-sm leading-6 text-copy-secondary">
             This is a destructive confirmation. No additional input is required.
           </div>
