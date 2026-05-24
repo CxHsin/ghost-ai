@@ -11,6 +11,8 @@ function createAuthRoutePattern(route: string | undefined) {
 }
 
 const publicRoutes = [
+  "/sign-in(.*)",
+  "/sign-up(.*)",
   createAuthRoutePattern(process.env.NEXT_PUBLIC_CLERK_SIGN_IN_URL),
   createAuthRoutePattern(process.env.NEXT_PUBLIC_CLERK_SIGN_UP_URL),
 ].filter((route): route is string => Boolean(route));

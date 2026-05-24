@@ -41,6 +41,8 @@ Update this file whenever the current phase, active feature, or implementation s
 - Added explicit `font-sans` Clerk element bindings so auth forms consistently render with the Geist Sans typography required by `context/ui-context.md`.
 - Rebalanced the split auth layout typography to better match the reference composition, reducing the left-side heading, body, and feature scales so they align more naturally with the right-side Clerk card.
 - Tightened the left auth panel typography again so its heading, supporting copy, and feature list sit in the same visual size range as the right-side Clerk card.
+- Simplified the auth left panel back to a text-only presentation without decorative gradients or icon cards so it stays aligned with `03-auth.md`.
+- Added `/sign-in(.*)` and `/sign-up(.*)` fallback public routes in `proxy.ts` so auth pages remain reachable even if Clerk env URLs are unset.
 - Verified the auth setup with `clerk doctor`, `npm run lint`, and `npm run build`.
 
 ## In Progress

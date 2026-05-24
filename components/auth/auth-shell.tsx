@@ -1,4 +1,3 @@
-import { Bot, FileText, Share2 } from "lucide-react";
 import type { ReactNode } from "react";
 
 interface AuthShellProps {
@@ -9,21 +8,9 @@ interface AuthShellProps {
 }
 
 const AUTH_FEATURES = [
-  {
-    title: "AI Architecture Generation",
-    description: "Describe your system, AI maps it to nodes and edges on a live canvas.",
-    icon: Bot,
-  },
-  {
-    title: "Real-time Collaboration",
-    description: "Live cursors, presence indicators, and shared node editing across your team.",
-    icon: Share2,
-  },
-  {
-    title: "Instant Spec Generation",
-    description: "Export a complete Markdown technical spec directly from the canvas graph.",
-    icon: FileText,
-  },
+  "AI Architecture Generation",
+  "Real-time Collaboration",
+  "Instant Spec Generation",
 ];
 
 export function AuthShell({
@@ -35,16 +22,7 @@ export function AuthShell({
   return (
     <main className="min-h-screen bg-base text-copy-primary">
       <div className="grid min-h-screen lg:grid-cols-2">
-        <section className="relative hidden overflow-hidden border-r border-surface-border bg-surface lg:block">
-          <div
-            aria-hidden="true"
-            className="absolute inset-y-0 left-0 w-full bg-[radial-gradient(circle_at_top_left,var(--accent-primary-dim),transparent_42%)]"
-          />
-          <div
-            aria-hidden="true"
-            className="absolute inset-x-0 bottom-0 h-48 bg-[linear-gradient(180deg,transparent,rgba(0,0,0,0.18))]"
-          />
-
+        <section className="hidden border-r border-surface-border bg-surface lg:block">
           <div className="relative flex min-h-screen flex-col px-16 py-14 xl:px-20">
             <div className="flex items-center gap-3">
               <div className="h-8 w-8 rounded-lg bg-brand shadow-[0_0_0_1px_var(--accent-primary-dim)]" />
@@ -67,19 +45,11 @@ export function AuthShell({
                   </p>
                 </div>
 
-                <div className="space-y-6">
-                  {AUTH_FEATURES.map(({ title, description, icon: Icon }) => (
-                    <div key={title} className="flex items-start gap-4">
-                      <div className="mt-0.5 flex h-9 w-9 items-center justify-center rounded-lg border border-surface-border bg-brand-dim text-brand">
-                        <Icon className="h-4 w-4" />
-                      </div>
-                      <div className="space-y-1">
-                        <h2 className="text-base font-medium text-copy-primary">{title}</h2>
-                        <p className="max-w-md text-sm leading-7 text-copy-muted">
-                          {description}
-                        </p>
-                      </div>
-                    </div>
+                <div className="space-y-3">
+                  {AUTH_FEATURES.map((feature) => (
+                    <p key={feature} className="text-base leading-7 text-copy-secondary">
+                      {feature}
+                    </p>
                   ))}
                 </div>
               </div>
