@@ -5,28 +5,39 @@ import { Plus } from "lucide-react";
 
 import { EditorNavbar } from "@/components/editor/editor-navbar";
 import { ProjectDialogs } from "@/components/editor/project-dialogs";
+import { type ProjectListItem } from "@/components/editor/project-list-item";
 import { ProjectSidebar } from "@/components/editor/project-sidebar";
-import { useProjectDialogState } from "@/components/editor/use-project-dialog-state";
 import { Button } from "@/components/ui/button";
+import { useProjectActions } from "@/hooks/use-project-actions";
 
-export function EditorHomeShell() {
+interface EditorHomeShellProps {
+  ownedProjects: ProjectListItem[];
+  sharedProjects: ProjectListItem[];
+}
+
+export function EditorHomeShell({
+  ownedProjects,
+  sharedProjects,
+}: EditorHomeShellProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const {
     activeDialog,
     closeDialog,
+    errorMessage,
     formState,
     isLoading,
     openCreateDialog,
     openDeleteDialog,
     openRenameDialog,
-    ownedProjects,
     selectedProject,
-    sharedProjects,
     submitCreate,
     submitDelete,
     submitRename,
     updateName,
-  } = useProjectDialogState();
+  } = useProjectActions({
+    ownedProjects,
+    sharedProjects,
+  });
 
   return (
     <div className="relative flex min-h-screen flex-col overflow-hidden bg-base">
@@ -67,6 +78,7 @@ export function EditorHomeShell() {
       <ProjectDialogs
         activeDialog={activeDialog}
         currentProjectName={selectedProject?.name ?? null}
+        errorMessage={errorMessage}
         isLoading={isLoading}
         onClose={closeDialog}
         onCreate={submitCreate}
@@ -74,7 +86,7 @@ export function EditorHomeShell() {
         onRename={submitRename}
         onNameChange={updateName}
         projectName={formState.name}
-        slugPreview={formState.slugPreview}
+        roomIdPreview={formState.roomIdPreview}
       />
     </div>
   );

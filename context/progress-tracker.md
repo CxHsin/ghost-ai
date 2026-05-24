@@ -4,11 +4,11 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Current Phase
 
-- Prisma schema and data layer foundation
+- Editor home API wiring
 
 ## Current Goal
 
-- Add the project Prisma models, cached Prisma client singleton, and first migration.
+- Wire the `/editor` home screen and project dialogs to the real project API.
 
 ## Completed
 
@@ -55,6 +55,21 @@ Update this file whenever the current phase, active feature, or implementation s
 - Added `lib/prisma.ts` as a cached Prisma singleton that uses Prisma Accelerate for `prisma+postgres://` URLs and `@prisma/adapter-pg` for direct PostgreSQL URLs.
 - Created and applied the first Prisma migration at `prisma/migrations/20260524141620_init_project_data_layer/migration.sql`.
 - Generated the Prisma client into `app/generated/prisma` and verified the Prisma data layer with `npx prisma validate`, `npx prisma migrate dev`, `npx prisma generate`, and `npm run build`.
+- Added `app/api/projects/route.ts` with authenticated `GET /api/projects` and `POST /api/projects` handlers.
+- Added `app/api/projects/[projectId]/route.ts` with authenticated owner-only `PATCH /api/projects/[projectId]` and `DELETE /api/projects/[projectId]` handlers.
+- Added `lib/project-api.ts` to centralize JSON parsing, response shapes, authenticated user lookup, Prisma project selection, and owner checks for the project routes.
+- Enforced the `06-project-apis.md` rules: unauthenticated requests return `401`, non-owner rename/delete requests return `403`, and missing create names default to `Untitled Project`.
+- Verified the backend project API unit with `npm run build`.
+- Updated `app/editor/page.tsx` to stay a server component, fetch owned projects plus shared collaborator projects server-side, and pass both lists into the editor home shell without client-side initial fetching.
+- Added `hooks/use-project-actions.ts` to replace the mock dialog state with real create, rename, and delete project mutations backed by the existing project API routes.
+- Wired create project to generate a short room ID suffix, preview the final room ID in the dialog, send the aligned project ID to `POST /api/projects`, and navigate to `/editor/[projectId]` after success.
+- Wired rename and delete dialogs to the real `PATCH` and `DELETE` project routes, using `router.refresh()` after mutation and redirect support for deleting the active workspace.
+- Updated the sidebar and dialogs to use real project data, show room IDs instead of mock slugs, keep rename prefilled from the selected project, and show the selected project name in delete confirmation.
+- Extended `lib/project-api.ts` and `app/api/projects/route.ts` so project creation can accept an explicit project ID, keeping the project ID aligned with the future Liveblocks room ID required by `07-wire-editor-home.md`.
+- Tightened project name validation in `lib/project-api.ts` so create and rename both trim whitespace, reject empty names, and persist the trimmed value only.
+- Added duplicate project ID conflict handling so `POST /api/projects` maps Prisma unique constraint collisions to `409`, and the create project dialog now surfaces that conflict message inline instead of failing as a generic server error.
+- Unified project mutation error handling in `hooks/use-project-actions.ts` so create, rename, and delete all surface API and network failures inline inside their dialogs instead of failing silently.
+- Verified the wired editor home unit with `npm run lint` and `npm run build`.
 
 ## In Progress
 
@@ -62,7 +77,7 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Next Up
 
-- Build the next feature unit on top of the Prisma-backed project data layer.
+- Build the next feature unit on top of the wired editor home and real project mutations.
 
 ## Open Questions
 
@@ -80,3 +95,5 @@ Update this file whenever the current phase, active feature, or implementation s
 - Active feature unit has moved to `context/feature-specs/feature-specs/02-editor-chrome.md`.
 - Active project dialog work follows `context/feature-specs/feature-specs/04-project-dialogs.md`.
 - Active data layer work follows `context/feature-specs/feature-specs/05-prisma.md`.
+- Active backend API work follows `context/feature-specs/feature-specs/06-project-apis.md`.
+- Active editor home API wiring follows `context/feature-specs/feature-specs/07-wire-editor-home.md`.

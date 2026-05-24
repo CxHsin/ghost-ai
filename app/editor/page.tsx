@@ -1,5 +1,38 @@
-import { EditorHomeShell } from "@/components/editor/editor-home-shell";
+import { currentUser } from "@clerk/nextjs/server";
 
-export default function EditorPage() {
-  return <EditorHomeShell />;
+import { EditorHomeShell } from "@/components/editor/editor-home-shell";
+import {
+  listProjectsForOwner,
+  listSharedProjectsForCollaboratorEmail,
+  requireAuthenticatedUserId,
+} from "@/lib/project-api";
+
+export default async function EditorPage() {
+  const [{ userId }, user] = await Promise.all([
+    requireAuthenticatedUserId(),
+    currentUser(),
+  ]);
+
+  const collaboratorEmail = user?.primaryEmailAddress?.emailAddress ?? null;
+  const [ownedProjects, sharedProjects] = await Promise.all([
+    userId ? listProjectsForOwner(userId) : [],
+    collaboratorEmail ? listSharedProjectsForCollaboratorEmail(collaboratorEmail) : [],
+  ]);
+
+  return (
+    <EditorHomeShell
+      ownedProjects={ownedProjects.map((project) => ({
+        id: project.id,
+        name: project.name,
+        roomId: project.id,
+        isOwned: true,
+      }))}
+      sharedProjects={sharedProjects.map((project) => ({
+        id: project.id,
+        name: project.name,
+        roomId: project.id,
+        isOwned: false,
+      }))}
+    />
+  );
 }
