@@ -43,6 +43,8 @@ export async function POST(request: Request) {
   }
 
   try {
+    // Allowing a client-provided project ID is intentional so the project record can
+    // stay aligned with the future collaborative room ID for the same workspace.
     const project = id
       ? await createProjectForOwnerWithId(userId, id, name)
       : await createProjectForOwner(userId, name);

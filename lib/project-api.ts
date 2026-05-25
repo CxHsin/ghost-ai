@@ -1,6 +1,7 @@
 import { auth } from "@clerk/nextjs/server";
 
 import { Prisma, type Project } from "@/app/generated/prisma/client";
+import { normalizeCollaboratorEmail } from "@/lib/project-collaborator-email";
 import { prisma } from "@/lib/prisma";
 
 const PROJECT_RESPONSE_SELECT = {
@@ -49,13 +50,17 @@ type ProjectResponse = Prisma.ProjectGetPayload<{
   select: typeof PROJECT_RESPONSE_SELECT;
 }>;
 
-export function jsonError(status: number, code: string, message: string) {
-  const body = {
+function createApiErrorBody(code: string, message: string) {
+  return {
     error: {
       code,
       message,
     },
   } satisfies ApiErrorBody;
+}
+
+export function jsonError(status: number, code: string, message: string) {
+  const body = createApiErrorBody(code, message);
 
   return Response.json(body, { status });
 }
@@ -116,7 +121,7 @@ export async function listSharedProjectsForCollaboratorEmail(email: string) {
     where: {
       collaborators: {
         some: {
-          email,
+          email: normalizeCollaboratorEmail(email),
         },
       },
     },
@@ -214,12 +219,10 @@ export function parseCreateProjectInput(
 ): CreateProjectInputResult {
   if (!isProjectBody(payload)) {
     return {
-      error: {
-        error: {
-          code: "INVALID_REQUEST",
-          message: "Request body must be a JSON object.",
-        },
-      },
+      error: createApiErrorBody(
+        "INVALID_REQUEST",
+        "Request body must be a JSON object.",
+      ),
       id: null,
       name: null,
     };
@@ -227,12 +230,10 @@ export function parseCreateProjectInput(
 
   if (payload.id !== undefined && typeof payload.id !== "string") {
     return {
-      error: {
-        error: {
-          code: "INVALID_REQUEST",
-          message: "Project id must be a string.",
-        },
-      },
+      error: createApiErrorBody(
+        "INVALID_REQUEST",
+        "Project id must be a string.",
+      ),
       id: null,
       name: null,
     };
@@ -248,12 +249,10 @@ export function parseCreateProjectInput(
 
   if (typeof payload.name !== "string") {
     return {
-      error: {
-        error: {
-          code: "INVALID_REQUEST",
-          message: "Project name must be a string.",
-        },
-      },
+      error: createApiErrorBody(
+        "INVALID_REQUEST",
+        "Project name must be a string.",
+      ),
       id: null,
       name: null,
     };
@@ -263,12 +262,10 @@ export function parseCreateProjectInput(
 
   if (trimmedName.length === 0) {
     return {
-      error: {
-        error: {
-          code: "INVALID_REQUEST",
-          message: "Project name cannot be empty.",
-        },
-      },
+      error: createApiErrorBody(
+        "INVALID_REQUEST",
+        "Project name cannot be empty.",
+      ),
       id: null,
       name: null,
     };
@@ -284,24 +281,20 @@ export function parseCreateProjectInput(
 export function parseRenameProjectName(payload: unknown): ProjectNameResult {
   if (!isProjectBody(payload)) {
     return {
-      error: {
-        error: {
-          code: "INVALID_REQUEST",
-          message: "Request body must be a JSON object.",
-        },
-      },
+      error: createApiErrorBody(
+        "INVALID_REQUEST",
+        "Request body must be a JSON object.",
+      ),
       name: null,
     };
   }
 
   if (typeof payload.name !== "string") {
     return {
-      error: {
-        error: {
-          code: "INVALID_REQUEST",
-          message: "Project name must be a string.",
-        },
-      },
+      error: createApiErrorBody(
+        "INVALID_REQUEST",
+        "Project name must be a string.",
+      ),
       name: null,
     };
   }
@@ -309,12 +302,10 @@ export function parseRenameProjectName(payload: unknown): ProjectNameResult {
   const trimmedName = payload.name.trim();
   if (trimmedName.length === 0) {
     return {
-      error: {
-        error: {
-          code: "INVALID_REQUEST",
-          message: "Project name cannot be empty.",
-        },
-      },
+      error: createApiErrorBody(
+        "INVALID_REQUEST",
+        "Project name cannot be empty.",
+      ),
       name: null,
     };
   }

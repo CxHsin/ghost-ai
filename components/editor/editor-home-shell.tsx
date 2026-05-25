@@ -58,11 +58,11 @@ export function EditorHomeShell({
         />
 
         <main className="flex flex-1 items-center justify-center px-6 py-10">
-          <div className="max-w-xl text-center">
-            <h1 className="text-3xl font-semibold tracking-tight text-copy-primary sm:text-4xl">
+          <div className="max-w-lg text-center">
+            <h1 className="text-2xl font-semibold tracking-tight text-copy-primary sm:text-3xl">
               Create a project or open an existing one
             </h1>
-            <p className="mt-4 text-base leading-7 text-copy-secondary">
+            <p className="mt-4 text-sm leading-7 text-copy-secondary">
               Start a new architecture workspace, or choose a project from the sidebar.
             </p>
             <div className="mt-8 flex justify-center">
