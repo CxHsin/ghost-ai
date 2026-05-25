@@ -1,8 +1,9 @@
 "use client";
 
-import { Bot, Compass, Share2, SidebarOpen } from "lucide-react";
+import { Bot, Share2, SidebarOpen } from "lucide-react";
 import { useState } from "react";
 
+import { EditorCanvasRoom } from "@/components/editor/editor-canvas-room";
 import { EditorNavbar } from "@/components/editor/editor-navbar";
 import { ProjectDialogs } from "@/components/editor/project-dialogs";
 import { type ProjectListItem } from "@/components/editor/project-list-item";
@@ -101,29 +102,8 @@ export function EditorWorkspaceShell({
         />
 
         <div className="relative flex flex-1 overflow-hidden p-3 pt-4 sm:p-4">
-          <main className="relative flex flex-1 items-center justify-center overflow-hidden rounded-3xl border border-surface-border bg-surface/50 px-6 py-10">
-            <div className="absolute inset-0 opacity-70">
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(0,200,212,0.12),transparent_35%),radial-gradient(circle_at_bottom_right,rgba(100,87,249,0.12),transparent_28%)]" />
-              <div className="absolute inset-0 bg-[linear-gradient(rgba(42,42,48,0.4)_1px,transparent_1px),linear-gradient(90deg,rgba(42,42,48,0.4)_1px,transparent_1px)] bg-[size:74px_74px]" />
-              <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(8,8,9,0.2),rgba(8,8,9,0.72))]" />
-            </div>
-
-            <div className="relative flex max-w-3xl flex-col items-center text-center">
-              <div className="flex size-22 items-center justify-center rounded-3xl border border-surface-border bg-elevated/90 shadow-[0_18px_60px_rgba(0,0,0,0.35)]">
-                <Compass className="h-10 w-10 text-brand" />
-              </div>
-              <p className="mt-8 text-xs font-medium tracking-[0.38em] text-copy-faint uppercase">
-                Workspace Shell
-              </p>
-              <h1 className="mt-5 max-w-3xl text-2xl font-semibold tracking-tight text-copy-primary sm:text-3xl">
-                Canvas and collaboration tooling land here next.
-              </h1>
-              <p className="mt-6 max-w-xl text-sm leading-8 text-copy-muted">
-                This room is ready for the shared architecture canvas, durable AI
-                workflows, and real-time presence. For now, the shell is wired with
-                project context and navigation only.
-              </p>
-            </div>
+          <main className="relative flex flex-1 overflow-hidden rounded-3xl border border-surface-border bg-surface/50">
+            <EditorCanvasRoom roomId={currentProject.roomId} />
           </main>
 
           <aside

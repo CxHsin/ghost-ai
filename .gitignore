@@ -44,3 +44,7 @@ next-env.d.ts
 /.clerk/
 
 /app/generated/prisma
+
+# local agent workspace files
+/.agents/
+skills-lock.json

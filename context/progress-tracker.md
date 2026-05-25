@@ -4,11 +4,11 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Current Phase
 
-- Next feature unit
+- Base collaborative canvas
 
 ## Current Goal
 
-- Build the next feature unit on top of the completed editor home, workspace shell, and sharing flows without regressing the current protected workspace behavior.
+- Add the bottom shape panel from `context/feature-specs/feature-specs/12-shape-panel.md` so users can drag new nodes onto the collaborative canvas.
 
 ## Completed
 
@@ -93,14 +93,34 @@ Update this file whenever the current phase, active feature, or implementation s
 - Documented the intentional client-specified project ID flow in `POST /api/projects` so reviewers can see it exists to keep project IDs aligned with future collaborative room IDs.
 - Removed the obsolete mock project dialog state files after the live project action flow fully replaced them, eliminating the stale `slug`-based project shape.
 - Updated `ProjectCollaborator` to use a composite primary key in the Prisma schema and added a follow-up migration to replace the old `(projectId, email)` unique index with a proper primary key constraint.
+- Added `@liveblocks/node` to support the server-side auth flow required by `10-liveblocks-setup.md`.
+- Replaced the default `liveblocks.config.ts` scaffold with typed Presence and UserMeta definitions for cursor state, AI thinking state, and user display metadata.
+- Added `lib/project-access.ts` to centralize current Clerk identity lookup plus owner-or-collaborator project access checks for protected project rooms.
+- Added `lib/liveblocks.ts` with a cached Liveblocks node client, deterministic cursor color hashing, and room bootstrap logic that ensures authorized users have room write access.
+- Added `app/api/liveblocks-auth/route.ts` as a protected Liveblocks auth endpoint that validates room access against the project data layer, creates the room when needed, and returns a session token with name, avatar, and cursor color metadata.
+- Reconciled the Liveblocks auth route with the current `development` branch project access helpers so the route uses the latest identity/access API shape and the app builds cleanly again.
+- Verified the Liveblocks setup unit with `npm run lint` and `npm run build`.
+- Added `types/canvas.ts` with shared base canvas node and edge types plus the project-approved node color palette and shape definitions.
+- Added `components/editor/editor-canvas-room.tsx` to set up `LiveblocksProvider`, `RoomProvider`, initial presence, `ClientSideSuspense`, a loading state, and a connection-error fallback around each editor room.
+- Added `components/editor/base-canvas.tsx` with the first Liveblocks-synced React Flow surface using `useLiveblocksFlow`, empty initial nodes and edges, loose connections, `fitView`, `MiniMap`, and a dot-pattern background.
+- Replaced the workspace canvas placeholder in `components/editor/editor-workspace-shell.tsx` with the real collaborative canvas room bound to the current project room ID.
+- Imported the React Flow base stylesheet in `app/globals.css` so the synced canvas renders with the required foundation styles.
+- Hardened `app/api/liveblocks-auth/route.ts` so missing Liveblocks configuration and authorization failures now return explicit JSON API errors instead of opaque 500 responses.
+- Added `hasLiveblocksSecret()` in `lib/liveblocks.ts` so the auth route can fail fast when `LIVEBLOCKS_SECRET_KEY` is missing from the server environment.
+- Verified the base canvas unit with `npm run lint` and `npm run build`.
+- Extended `types/canvas.ts` with default shape sizes, drag payload typing, default-color helpers, and shape-based node ID generation for canvas node creation.
+- Added `components/editor/canvas-node.tsx` as the first custom `canvasNode` renderer so newly created nodes are visible even before shape-specific visuals land.
+- Updated `components/editor/base-canvas.tsx` to render a floating bottom-center shape panel with draggable buttons for rectangle, diamond, circle, pill, cylinder, and hexagon.
+- Added drag payload serialization plus canvas `dragover` and `drop` handling that converts screen coordinates to flow coordinates and inserts new Liveblocks-synced nodes with the custom node type, default color, empty label, dropped shape, and shape-specific default size.
+- Fixed the active project card gradient in `components/editor/project-sidebar.tsx` by replacing the invalid `bg-linear-to-r` Tailwind class with `bg-gradient-to-r`, restoring the intended highlighted background for the selected project.
 
 ## In Progress
 
-- None currently.
+- Verifying the `12-shape-panel.md` implementation with a production build.
 
 ## Next Up
 
-- Build the next feature unit on top of the workspace shell placeholders without adding canvas, Liveblocks, AI chat, or sharing behavior ahead of spec.
+- Add shape-specific node visuals on top of the new custom node renderer so rectangle, diamond, circle, pill, cylinder, and hexagon no longer share the same placeholder rectangle.
 
 ## Open Questions
 
@@ -110,6 +130,7 @@ Update this file whenever the current phase, active feature, or implementation s
 
 - UI primitives will be generated via the `shadcn` CLI into `components/ui/` and treated as protected foundation components.
 - App-level styling should use project tokens in `app/globals.css` and compose the generated primitives instead of modifying `components/ui/*`.
+- Project membership checks for room access now live in `lib/project-access.ts` so route handlers and future workspace surfaces share a single owner-or-collaborator permission boundary.
 
 ## Session Notes
 
@@ -121,3 +142,6 @@ Update this file whenever the current phase, active feature, or implementation s
 - Active backend API work follows `context/feature-specs/feature-specs/06-project-apis.md`.
 - Active editor home API wiring follows `context/feature-specs/feature-specs/07-wire-editor-home.md`.
 - Active workspace shell work follows `context/feature-specs/feature-specs/08-editor-workspace-shell.md`.
+- Active realtime collaboration setup follows `context/feature-specs/feature-specs/10-liveblocks-setup.md`.
+- Active base canvas work followed `context/feature-specs/feature-specs/11-base-canvas.md`.
+- Active shape panel work follows `context/feature-specs/feature-specs/12-shape-panel.md`.

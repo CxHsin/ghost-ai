@@ -104,7 +104,10 @@ export function ProjectDialogs({
         title="Create Project"
         description="Start a new architecture workspace with a project name and room ID preview."
       >
-        <form onSubmit={(event) => handleSubmit(event, onCreate)} className="space-y-5">
+        <form
+          onSubmit={(event) => handleSubmit(event, onCreate)}
+          className="space-y-5"
+        >
           <DialogError errorMessage={errorMessage} />
 
           <div className="space-y-0">
@@ -151,7 +154,10 @@ export function ProjectDialogs({
             : "Rename the selected project."
         }
       >
-        <form onSubmit={(event) => handleSubmit(event, onRename)} className="space-y-5">
+        <form
+          onSubmit={(event) => handleSubmit(event, onRename)}
+          className="space-y-5"
+        >
           <DialogError errorMessage={errorMessage} />
 
           <div className="space-y-2">
@@ -194,15 +200,19 @@ export function ProjectDialogs({
         <div className="space-y-5">
           <DialogError errorMessage={errorMessage} />
 
-          <div className="rounded-2xl border border-state-error/30 bg-state-error/10 px-4 py-3 text-sm leading-6 text-copy-secondary">
+          <div className="rounded-2xl border border-surface-border bg-base/70 px-4 py-3 text-sm leading-6 text-copy-secondary">
             This is a destructive confirmation. No additional input is required.
           </div>
-
           <DialogFooter className="-mx-6 -mb-6 rounded-b-3xl border-surface-border bg-subtle/60 px-6 py-4">
             <Button type="button" variant="ghost" onClick={onClose}>
               Cancel
             </Button>
-            <Button type="button" variant="destructive" onClick={onDelete} disabled={isLoading}>
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={onDelete}
+              disabled={isLoading}
+            >
               Delete Project
             </Button>
           </DialogFooter>

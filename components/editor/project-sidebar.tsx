@@ -58,7 +58,7 @@ function ProjectList({
           className={cn(
             "rounded-2xl border px-4 py-4 transition-colors",
             project.id === activeProjectId
-              ? "border-brand bg-linear-to-r from-brand-dim to-brand-dim/30 shadow-[0_0_0_1px_rgba(0,200,212,0.08)]"
+              ? "border-brand bg-gradient-to-r from-brand-dim to-brand-dim/30 shadow-[0_0_0_1px_rgba(0,200,212,0.08)]"
               : "border-surface-border bg-base/60 hover:bg-elevated/80",
           )}
         >

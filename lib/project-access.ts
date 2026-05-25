@@ -13,6 +13,8 @@ const WORKSPACE_PROJECT_SELECT = {
 } satisfies Prisma.ProjectSelect;
 
 interface ProjectIdentity {
+  avatarUrl: string | null;
+  displayName: string | null;
   primaryEmail: string | null;
   userId: string | null;
 }
@@ -21,6 +23,12 @@ export async function getCurrentProjectIdentity(): Promise<ProjectIdentity> {
   const [{ userId }, user] = await Promise.all([auth(), currentUser()]);
 
   return {
+    avatarUrl: user?.imageUrl ?? null,
+    displayName:
+      user?.fullName?.trim() ||
+      user?.firstName?.trim() ||
+      user?.username?.trim() ||
+      null,
     primaryEmail: user?.primaryEmailAddress?.emailAddress
       ? normalizeCollaboratorEmail(user.primaryEmailAddress.emailAddress)
       : null,
