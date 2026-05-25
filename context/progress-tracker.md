@@ -4,11 +4,11 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Current Phase
 
-- Editor home API wiring
+- Next feature unit
 
 ## Current Goal
 
-- Wire the `/editor` home screen and project dialogs to the real project API.
+- Build the next feature unit on top of the completed editor home, workspace shell, and sharing flows without regressing the current protected workspace behavior.
 
 ## Completed
 
@@ -46,7 +46,6 @@ Update this file whenever the current phase, active feature, or implementation s
 - Added `/` to the public route list in `proxy.ts` so the home page redirect logic can run before auth protection redirects unauthenticated users.
 - Verified the auth setup with `clerk doctor`, `npm run lint`, and `npm run build`.
 - Replaced the temporary `/editor` center panel with the minimal home screen from `04-project-dialogs.md`, including the heading, description, and `New Project` CTA.
-- Added a dedicated `useProjectDialogState` hook to manage project dialog mode, form state, and loading state with mock owned/shared project data only.
 - Added wired Create, Rename, and Delete project dialogs, including live slug preview, rename autofocus, Enter-to-submit forms, and destructive delete confirmation styling.
 - Updated the project sidebar to render mock project lists, show rename/delete actions only for owned projects, wire all dialog entry points, and add a mobile backdrop scrim that closes the sidebar on outside tap.
 - Verified the project dialogs and editor home unit with `npm run lint` and `npm run build`.
@@ -70,6 +69,30 @@ Update this file whenever the current phase, active feature, or implementation s
 - Added duplicate project ID conflict handling so `POST /api/projects` maps Prisma unique constraint collisions to `409`, and the create project dialog now surfaces that conflict message inline instead of failing as a generic server error.
 - Unified project mutation error handling in `hooks/use-project-actions.ts` so create, rename, and delete all surface API and network failures inline inside their dialogs instead of failing silently.
 - Verified the wired editor home unit with `npm run lint` and `npm run build`.
+- Added `lib/project-access.ts` with server-only helpers for reading the current Clerk identity (`userId` plus primary email) and resolving project access by owner or collaborator membership.
+- Added `components/editor/access-denied.tsx` as the shared unauthorized or missing-project state with a centered layout, lock icon, and link back to `/editor`.
+- Added `app/editor/[roomId]/page.tsx` as a server component that awaits the Next.js 16 `params` promise, redirects unauthenticated users to `/sign-in`, and uses `AccessDenied` for missing or unauthorized projects.
+- Added `components/editor/editor-workspace-shell.tsx` to render the full-viewport workspace shell with the current project name, left project sidebar, central canvas placeholder, and right AI sidebar placeholder.
+- Extended the existing editor navbar and project sidebar so the workspace shell can show project-specific navbar actions, highlight the active room, and link between accessible projects.
+- Verified the editor workspace shell unit with `npm run lint` and `npm run build`.
+- Refined the `/editor/[roomId]` shell UI to better match the approved workspace direction: left-aligned navbar title stack, stronger floating sidebars, a framed canvas placeholder with grid and radial lighting, and a more structured AI copilot placeholder panel.
+- Adjusted the shell panel behavior so the AI copilot now slides over the workspace instead of shrinking the canvas, while the left project panel uses a narrower footprint and tighter spacing.
+- Increased the vertical spacing between the `Project name` label and input in the create-project dialog so the form reads less cramped.
+- Refined the create-project dialog spacing again by giving the `Project name` label its own bottom margin, specifically separating it from the input border instead of only increasing container spacing.
+- Added `lib/project-collaborator-email.ts` to normalize and validate collaborator emails consistently across project access and sharing flows.
+- Added `lib/project-collaborators.ts` with server-side collaborator listing, owner-only invite/remove helpers, and Clerk-backed display name/avatar enrichment without adding a local user table.
+- Added `app/api/projects/[projectId]/collaborators/route.ts` plus `app/api/projects/[projectId]/collaborators/[email]/route.ts` for authenticated collaborator listing and owner-only invite/remove mutations.
+- Updated project access and shared project queries to normalize collaborator emails before matching so project sharing remains case-insensitive.
+- Added `components/editor/share-dialog.tsx` and wired the workspace `Share` button to open it from the editor navbar.
+- Implemented owner sharing controls in the dialog for invite-by-email, collaborator removal, and project-link copy with temporary `Copied!` feedback.
+- Implemented collaborator read-only dialog behavior so non-owners can open the share dialog and view the enriched collaborator list without changing access.
+- Reduced the workspace shell center-panel typography so the placeholder heading and body copy align more closely with the approved reference scale.
+- Reduced the workspace shell center-panel typography again to better match the smaller title and body proportions in the approved reference.
+- Reduced the `/editor` home screen center-panel typography as well so its empty-state heading and body copy stay aligned with the smaller reference proportions.
+- Fixed malformed validation error payloads in `lib/project-api.ts` by removing the accidental extra `error` nesting, so project API routes now return the expected response shape for invalid requests.
+- Documented the intentional client-specified project ID flow in `POST /api/projects` so reviewers can see it exists to keep project IDs aligned with future collaborative room IDs.
+- Removed the obsolete mock project dialog state files after the live project action flow fully replaced them, eliminating the stale `slug`-based project shape.
+- Updated `ProjectCollaborator` to use a composite primary key in the Prisma schema and added a follow-up migration to replace the old `(projectId, email)` unique index with a proper primary key constraint.
 
 ## In Progress
 
@@ -77,7 +100,7 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Next Up
 
-- Build the next feature unit on top of the wired editor home and real project mutations.
+- Build the next feature unit on top of the workspace shell placeholders without adding canvas, Liveblocks, AI chat, or sharing behavior ahead of spec.
 
 ## Open Questions
 
@@ -97,3 +120,4 @@ Update this file whenever the current phase, active feature, or implementation s
 - Active data layer work follows `context/feature-specs/feature-specs/05-prisma.md`.
 - Active backend API work follows `context/feature-specs/feature-specs/06-project-apis.md`.
 - Active editor home API wiring follows `context/feature-specs/feature-specs/07-wire-editor-home.md`.
+- Active workspace shell work follows `context/feature-specs/feature-specs/08-editor-workspace-shell.md`.

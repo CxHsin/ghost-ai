@@ -107,10 +107,10 @@ export function ProjectDialogs({
         <form onSubmit={(event) => handleSubmit(event, onCreate)} className="space-y-5">
           <DialogError errorMessage={errorMessage} />
 
-          <div className="space-y-2">
+          <div className="space-y-0">
             <label
               htmlFor="create-project-name"
-              className="text-sm font-medium text-copy-primary"
+              className="mb-3 block text-sm font-medium text-copy-primary"
             >
               Project name
             </label>
