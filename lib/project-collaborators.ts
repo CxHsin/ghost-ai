@@ -4,7 +4,10 @@ import { clerkClient } from "@clerk/nextjs/server";
 
 import { Prisma } from "@/app/generated/prisma/client";
 import { type ProjectIdentity } from "@/lib/project-access";
-import { normalizeCollaboratorEmail } from "@/lib/project-collaborator-email";
+import {
+  isValidCollaboratorEmail,
+  normalizeCollaboratorEmail,
+} from "@/lib/project-collaborator-email";
 import { prisma } from "@/lib/prisma";
 
 const PROJECT_OWNER_SELECT = {
@@ -315,6 +318,21 @@ export function parseCollaboratorEmail(payload: unknown): CollaboratorEmailResul
   }
 
   const normalizedEmail = normalizeCollaboratorEmail(body.email);
+
+  if (
+    normalizedEmail.length === 0 ||
+    !isValidCollaboratorEmail(normalizedEmail)
+  ) {
+    return {
+      error: {
+        error: {
+          code: "INVALID_REQUEST",
+          message: "Collaborator email must be a valid email address.",
+        },
+      },
+      email: null,
+    };
+  }
 
   return {
     error: null,

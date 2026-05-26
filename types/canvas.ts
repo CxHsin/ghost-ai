@@ -52,14 +52,10 @@ export interface CanvasNodeData extends Record<string, unknown> {
 export type CanvasNode = Node<CanvasNodeData, typeof CANVAS_NODE_TYPE>;
 export type CanvasEdge = Edge<Record<string, never>, typeof CANVAS_EDGE_TYPE>;
 
-let canvasNodeCounter = 0;
-
 export function getDefaultCanvasNodeColor(): CanvasNodeColor {
   return NODE_COLORS[DEFAULT_CANVAS_NODE_COLOR_INDEX];
 }
 
 export function createCanvasNodeId(shape: CanvasNodeShape): string {
-  canvasNodeCounter += 1;
-
-  return `${shape}-${Date.now()}-${canvasNodeCounter}`;
+  return `${shape}-${crypto.randomUUID()}`;
 }

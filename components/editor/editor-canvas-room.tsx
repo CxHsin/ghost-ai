@@ -5,11 +5,14 @@ import {
   LiveblocksProvider,
   RoomProvider,
   useErrorListener,
+  useRoom,
+  useStatus,
 } from "@liveblocks/react/suspense";
 import { useState } from "react";
 import { LoaderCircle, WifiOff } from "lucide-react";
 
 import { BaseCanvas } from "@/components/editor/base-canvas";
+import { Button } from "@/components/ui/button";
 
 interface EditorCanvasRoomProps {
   roomId: string;
@@ -26,7 +29,12 @@ function CanvasLoadingState() {
   );
 }
 
-function CanvasErrorState({ message }: { message: string }) {
+interface CanvasErrorStateProps {
+  message: string;
+  onRetry: () => void;
+}
+
+function CanvasErrorState({ message, onRetry }: CanvasErrorStateProps) {
   return (
     <div className="flex h-full w-full items-center justify-center bg-base px-6">
       <div className="max-w-md rounded-3xl border border-state-error/40 bg-surface/95 p-6 text-center shadow-xl shadow-black/25">
@@ -37,20 +45,30 @@ function CanvasErrorState({ message }: { message: string }) {
           Canvas connection failed
         </h2>
         <p className="mt-2 text-sm leading-7 text-copy-muted">{message}</p>
+        <Button className="mt-5 rounded-2xl" onClick={onRetry} type="button">
+          Retry connection
+        </Button>
       </div>
     </div>
   );
 }
 
 function CanvasRoomContent() {
+  const room = useRoom();
+  const status = useStatus();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useErrorListener((error) => {
     setErrorMessage(error.message || "Live collaboration is temporarily unavailable.");
   });
 
-  if (errorMessage) {
-    return <CanvasErrorState message={errorMessage} />;
+  const handleRetry = () => {
+    setErrorMessage(null);
+    room.reconnect();
+  };
+
+  if (errorMessage && status !== "connected") {
+    return <CanvasErrorState message={errorMessage} onRetry={handleRetry} />;
   }
 
   return <BaseCanvas />;

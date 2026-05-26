@@ -180,9 +180,10 @@ export function useProjectActions({
           };
         };
       };
+      const createdRoomId = payload.data.project.id;
 
       closeDialog();
-      router.push(`/editor/${payload.data.project.id}`);
+      router.push(`/editor/${createdRoomId}`);
     } catch (error) {
       setErrorMessage(getErrorMessage(error, "Failed to create project."));
     } finally {

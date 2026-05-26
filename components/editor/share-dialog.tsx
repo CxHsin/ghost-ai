@@ -118,6 +118,8 @@ export function ShareDialog({
       return;
     }
 
+    const abortController = new AbortController();
+
     async function loadCollaborators() {
       setIsLoading(true);
       setErrorMessage(null);
@@ -125,6 +127,7 @@ export function ShareDialog({
       try {
         const response = await fetch(`/api/projects/${projectId}/collaborators`, {
           method: "GET",
+          signal: abortController.signal,
         });
 
         if (!response.ok) {
@@ -141,13 +144,23 @@ export function ShareDialog({
 
         setCollaborators(payload.data.collaborators);
       } catch (error) {
+        if (abortController.signal.aborted) {
+          return;
+        }
+
         setErrorMessage(getErrorMessage(error, "Failed to load collaborators."));
       } finally {
-        setIsLoading(false);
+        if (!abortController.signal.aborted) {
+          setIsLoading(false);
+        }
       }
     }
 
     void loadCollaborators();
+
+    return () => {
+      abortController.abort();
+    };
   }, [open, projectId]);
 
   function handleOpenChange(nextOpen: boolean) {

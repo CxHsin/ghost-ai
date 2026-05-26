@@ -12,6 +12,13 @@ import { jsonError, readProjectBody } from "@/lib/project-api";
 
 export const runtime = "nodejs";
 
+const LIVEBLOCKS_NOT_CONFIGURED_MESSAGE =
+  "Live collaboration is not available right now.";
+const LIVEBLOCKS_AUTH_FAILED_MESSAGE =
+  "Unable to authorize this live collaboration session.";
+const LIVEBLOCKS_AUTH_ROUTE_ERROR_MESSAGE =
+  "Unable to complete live collaboration authorization right now.";
+
 interface LiveblocksAuthBody {
   room?: unknown;
 }
@@ -22,7 +29,7 @@ export async function POST(request: Request) {
       return jsonError(
         500,
         "LIVEBLOCKS_NOT_CONFIGURED",
-        "LIVEBLOCKS_SECRET_KEY is not set on the server.",
+        LIVEBLOCKS_NOT_CONFIGURED_MESSAGE,
       );
     }
 
@@ -82,7 +89,7 @@ export async function POST(request: Request) {
       return jsonError(
         status || 500,
         "LIVEBLOCKS_AUTH_FAILED",
-        error.message || "Liveblocks session authorization failed.",
+        LIVEBLOCKS_AUTH_FAILED_MESSAGE,
       );
     }
 
@@ -98,7 +105,7 @@ export async function POST(request: Request) {
     return jsonError(
       500,
       "LIVEBLOCKS_AUTH_ROUTE_ERROR",
-      error instanceof Error ? error.message : "Unexpected Liveblocks auth error.",
+      LIVEBLOCKS_AUTH_ROUTE_ERROR_MESSAGE,
     );
   }
 }

@@ -59,6 +59,13 @@ function createApiErrorBody(code: string, message: string) {
   } satisfies ApiErrorBody;
 }
 
+function isPrismaNotFoundError(error: unknown) {
+  return (
+    error instanceof Prisma.PrismaClientKnownRequestError &&
+    error.code === "P2025"
+  );
+}
+
 export function jsonError(status: number, code: string, message: string) {
   const body = createApiErrorBody(code, message);
 
@@ -154,15 +161,25 @@ export async function renameOwnedProject(
     return { kind: "forbidden" } as const;
   }
 
-  const updatedProject = await prisma.project.update({
-    where: {
-      id: projectId,
-    },
-    data: {
-      name,
-    },
-    select: PROJECT_RESPONSE_SELECT,
-  });
+  let updatedProject: ProjectResponse;
+
+  try {
+    updatedProject = await prisma.project.update({
+      where: {
+        id: projectId,
+      },
+      data: {
+        name,
+      },
+      select: PROJECT_RESPONSE_SELECT,
+    });
+  } catch (error) {
+    if (isPrismaNotFoundError(error)) {
+      return { kind: "not_found" } as const;
+    }
+
+    throw error;
+  }
 
   return {
     kind: "success",
@@ -188,11 +205,19 @@ export async function deleteOwnedProject(projectId: string, userId: string) {
     return { kind: "forbidden" } as const;
   }
 
-  await prisma.project.delete({
-    where: {
-      id: projectId,
-    },
-  });
+  try {
+    await prisma.project.delete({
+      where: {
+        id: projectId,
+      },
+    });
+  } catch (error) {
+    if (isPrismaNotFoundError(error)) {
+      return { kind: "not_found" } as const;
+    }
+
+    throw error;
+  }
 
   return { kind: "success" } as const;
 }
@@ -239,10 +264,21 @@ export function parseCreateProjectInput(
     };
   }
 
+  if (typeof payload.id === "string" && payload.id.trim().length === 0) {
+    return {
+      error: createApiErrorBody(
+        "INVALID_REQUEST",
+        "Project id cannot be empty.",
+      ),
+      id: null,
+      name: null,
+    };
+  }
+
   if (payload.name === undefined) {
     return {
       error: null,
-      id: typeof payload.id === "string" ? payload.id : null,
+      id: typeof payload.id === "string" ? payload.id.trim() : null,
       name: "Untitled Project",
     };
   }
@@ -273,7 +309,7 @@ export function parseCreateProjectInput(
 
   return {
     error: null,
-    id: typeof payload.id === "string" ? payload.id : null,
+    id: typeof payload.id === "string" ? payload.id.trim() : null,
     name: trimmedName,
   };
 }

@@ -9,7 +9,7 @@ import {
   Minus,
   Pill,
 } from "lucide-react";
-import { useCallback } from "react";
+import { useCallback, useRef } from "react";
 import {
   Background,
   BackgroundVariant,
@@ -51,7 +51,11 @@ const nodeTypes: NodeTypes = {
   [CANVAS_NODE_TYPE]: CanvasNodeRenderer,
 };
 
-function ShapePanel() {
+interface ShapePanelProps {
+  onInsertShape: (shape: CanvasNodeShape) => void;
+}
+
+function ShapePanel({ onInsertShape }: ShapePanelProps) {
   const handleDragStart = useCallback(
     (event: React.DragEvent<HTMLButtonElement>, shape: CanvasNodeShape) => {
       const size = SHAPE_DEFAULT_SIZES[shape];
@@ -81,7 +85,8 @@ function ShapePanel() {
               key={shape}
               type="button"
               draggable
-              aria-label={`Drag ${shape} shape`}
+              aria-label={`Add ${shape} shape`}
+              onClick={() => onInsertShape(shape)}
               onDragStart={(event) => handleDragStart(event, shape)}
               className="flex size-11 items-center justify-center rounded-full border border-transparent bg-subtle/70 text-copy-secondary transition hover:border-surface-border-subtle hover:bg-subtle hover:text-copy-primary active:scale-95"
             >
@@ -95,6 +100,7 @@ function ShapePanel() {
 }
 
 function BaseCanvasFlow() {
+  const canvasRef = useRef<HTMLDivElement>(null);
   const reactFlow = useReactFlow<CanvasNode, CanvasEdge>();
   const {
     edges,
@@ -112,6 +118,54 @@ function BaseCanvasFlow() {
       initial: [],
     },
   });
+
+  const addShapeNode = useCallback(
+    (shape: CanvasNodeShape, position: { x: number; y: number }) => {
+      const size = SHAPE_DEFAULT_SIZES[shape];
+      const newNode: CanvasNode = {
+        id: createCanvasNodeId(shape),
+        type: CANVAS_NODE_TYPE,
+        position: {
+          x: position.x - size.width / 2,
+          y: position.y - size.height / 2,
+        },
+        width: size.width,
+        height: size.height,
+        data: {
+          label: "",
+          color: getDefaultCanvasNodeColor(),
+          shape,
+        },
+      };
+
+      onNodesChange([
+        {
+          type: "add",
+          item: newNode,
+        } satisfies NodeChange<CanvasNode>,
+      ]);
+    },
+    [onNodesChange],
+  );
+
+  const handleInsertShape = useCallback(
+    (shape: CanvasNodeShape) => {
+      const canvasElement = canvasRef.current;
+
+      if (!canvasElement) {
+        return;
+      }
+
+      const bounds = canvasElement.getBoundingClientRect();
+      const position = reactFlow.screenToFlowPosition({
+        x: bounds.left + bounds.width / 2,
+        y: bounds.top + bounds.height / 2,
+      });
+
+      addShapeNode(shape, position);
+    },
+    [addShapeNode, reactFlow],
+  );
 
   const handleDragOver = useCallback(
     (event: React.DragEvent<HTMLDivElement>) => {
@@ -151,34 +205,15 @@ function BaseCanvasFlow() {
         x: event.clientX,
         y: event.clientY,
       });
-      const newNode: CanvasNode = {
-        id: createCanvasNodeId(payload.shape),
-        type: CANVAS_NODE_TYPE,
-        position: {
-          x: position.x - payload.width / 2,
-          y: position.y - payload.height / 2,
-        },
-        width: payload.width,
-        height: payload.height,
-        data: {
-          label: "",
-          color: getDefaultCanvasNodeColor(),
-          shape: payload.shape,
-        },
-      };
 
-      onNodesChange([
-        {
-          type: "add",
-          item: newNode,
-        } satisfies NodeChange<CanvasNode>,
-      ]);
+      addShapeNode(payload.shape, position);
     },
-    [onNodesChange, reactFlow],
+    [addShapeNode, reactFlow],
   );
 
   return (
     <div
+      ref={canvasRef}
       className="relative h-full w-full"
       onDragOver={handleDragOver}
       onDrop={handleDrop}
@@ -214,7 +249,7 @@ function BaseCanvasFlow() {
           variant={BackgroundVariant.Dots}
         />
       </ReactFlow>
-      <ShapePanel />
+      <ShapePanel onInsertShape={handleInsertShape} />
     </div>
   );
 }

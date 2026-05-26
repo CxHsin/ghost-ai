@@ -66,6 +66,7 @@ Update this file whenever the current phase, active feature, or implementation s
 - Updated the sidebar and dialogs to use real project data, show room IDs instead of mock slugs, keep rename prefilled from the selected project, and show the selected project name in delete confirmation.
 - Extended `lib/project-api.ts` and `app/api/projects/route.ts` so project creation can accept an explicit project ID, keeping the project ID aligned with the future Liveblocks room ID required by `07-wire-editor-home.md`.
 - Tightened project name validation in `lib/project-api.ts` so create and rename both trim whitespace, reject empty names, and persist the trimmed value only.
+- Tightened create-project ID validation in `lib/project-api.ts` so client-provided IDs are trimmed and empty or whitespace-only values are rejected before persistence.
 - Added duplicate project ID conflict handling so `POST /api/projects` maps Prisma unique constraint collisions to `409`, and the create project dialog now surfaces that conflict message inline instead of failing as a generic server error.
 - Unified project mutation error handling in `hooks/use-project-actions.ts` so create, rename, and delete all surface API and network failures inline inside their dialogs instead of failing silently.
 - Verified the wired editor home unit with `npm run lint` and `npm run build`.
@@ -86,33 +87,42 @@ Update this file whenever the current phase, active feature, or implementation s
 - Added `components/editor/share-dialog.tsx` and wired the workspace `Share` button to open it from the editor navbar.
 - Implemented owner sharing controls in the dialog for invite-by-email, collaborator removal, and project-link copy with temporary `Copied!` feedback.
 - Implemented collaborator read-only dialog behavior so non-owners can open the share dialog and view the enriched collaborator list without changing access.
+- Hardened `components/editor/share-dialog.tsx` collaborator loading with request cancellation so closing the dialog or switching projects cannot let stale responses overwrite the current collaborator state.
 - Reduced the workspace shell center-panel typography so the placeholder heading and body copy align more closely with the approved reference scale.
 - Reduced the workspace shell center-panel typography again to better match the smaller title and body proportions in the approved reference.
 - Reduced the `/editor` home screen center-panel typography as well so its empty-state heading and body copy stay aligned with the smaller reference proportions.
 - Fixed malformed validation error payloads in `lib/project-api.ts` by removing the accidental extra `error` nesting, so project API routes now return the expected response shape for invalid requests.
+- Hardened `renameOwnedProject` and `deleteOwnedProject` in `lib/project-api.ts` so Prisma `P2025` races from concurrent deletion are mapped back to the existing `not_found` contract instead of surfacing as unexpected 500 errors.
 - Documented the intentional client-specified project ID flow in `POST /api/projects` so reviewers can see it exists to keep project IDs aligned with future collaborative room IDs.
 - Removed the obsolete mock project dialog state files after the live project action flow fully replaced them, eliminating the stale `slug`-based project shape.
 - Updated `ProjectCollaborator` to use a composite primary key in the Prisma schema and added a follow-up migration to replace the old `(projectId, email)` unique index with a proper primary key constraint.
 - Added `@liveblocks/node` to support the server-side auth flow required by `10-liveblocks-setup.md`.
 - Replaced the default `liveblocks.config.ts` scaffold with typed Presence and UserMeta definitions for cursor state, AI thinking state, and user display metadata.
-- Added `lib/project-access.ts` to centralize current Clerk identity lookup plus owner-or-collaborator project access checks for protected project rooms.
+- Extended `lib/project-access.ts` for the Liveblocks setup phase so the protected room auth flow reuses the centralized Clerk identity lookup plus owner-or-collaborator project access checks.
 - Added `lib/liveblocks.ts` with a cached Liveblocks node client, deterministic cursor color hashing, and room bootstrap logic that ensures authorized users have room write access.
 - Added `app/api/liveblocks-auth/route.ts` as a protected Liveblocks auth endpoint that validates room access against the project data layer, creates the room when needed, and returns a session token with name, avatar, and cursor color metadata.
 - Reconciled the Liveblocks auth route with the current `development` branch project access helpers so the route uses the latest identity/access API shape and the app builds cleanly again.
 - Verified the Liveblocks setup unit with `npm run lint` and `npm run build`.
 - Added `types/canvas.ts` with shared base canvas node and edge types plus the project-approved node color palette and shape definitions.
 - Added `components/editor/editor-canvas-room.tsx` to set up `LiveblocksProvider`, `RoomProvider`, initial presence, `ClientSideSuspense`, a loading state, and a connection-error fallback around each editor room.
+- Updated `components/editor/editor-canvas-room.tsx` so transient Liveblocks connection errors no longer permanently block the canvas: the error state now offers manual retry and clears itself after a successful reconnect.
 - Added `components/editor/base-canvas.tsx` with the first Liveblocks-synced React Flow surface using `useLiveblocksFlow`, empty initial nodes and edges, loose connections, `fitView`, `MiniMap`, and a dot-pattern background.
 - Replaced the workspace canvas placeholder in `components/editor/editor-workspace-shell.tsx` with the real collaborative canvas room bound to the current project room ID.
 - Imported the React Flow base stylesheet in `app/globals.css` so the synced canvas renders with the required foundation styles.
 - Hardened `app/api/liveblocks-auth/route.ts` so missing Liveblocks configuration and authorization failures now return explicit JSON API errors instead of opaque 500 responses.
 - Added `hasLiveblocksSecret()` in `lib/liveblocks.ts` so the auth route can fail fast when `LIVEBLOCKS_SECRET_KEY` is missing from the server environment.
+- Tightened `app/api/liveblocks-auth/route.ts` error responses so the client now gets stable, generic authorization failure messages while detailed Liveblocks and server exceptions stay in server logs only.
 - Verified the base canvas unit with `npm run lint` and `npm run build`.
 - Extended `types/canvas.ts` with default shape sizes, drag payload typing, default-color helpers, and shape-based node ID generation for canvas node creation.
 - Added `components/editor/canvas-node.tsx` as the first custom `canvasNode` renderer so newly created nodes are visible even before shape-specific visuals land.
 - Updated `components/editor/base-canvas.tsx` to render a floating bottom-center shape panel with draggable buttons for rectangle, diamond, circle, pill, cylinder, and hexagon.
 - Added drag payload serialization plus canvas `dragover` and `drop` handling that converts screen coordinates to flow coordinates and inserts new Liveblocks-synced nodes with the custom node type, default color, empty label, dropped shape, and shape-specific default size.
+- Added a click and keyboard-accessible insertion path for the shape panel so shape buttons can add nodes at the visible canvas center in addition to drag-and-drop.
 - Fixed the active project card gradient in `components/editor/project-sidebar.tsx` by replacing the invalid `bg-linear-to-r` Tailwind class with `bg-gradient-to-r`, restoring the intended highlighted background for the selected project.
+- Updated `components/editor/project-sidebar.tsx` so the closed sidebar uses `inert` alongside `aria-hidden`, preventing off-screen links and buttons from remaining keyboard-focusable while the slide-out panel is hidden.
+- Clarified the create-project success path in `hooks/use-project-actions.ts` so the post-create editor navigation explicitly uses the created room ID variable, matching the existing project ID and room ID alignment across the workspace routes.
+- Hardened collaborator invite input parsing in `lib/project-collaborators.ts` so blank or malformed email addresses are rejected at the API boundary before they can enter the project sharing flow.
+- Switched canvas node ID generation in `types/canvas.ts` to `crypto.randomUUID()` so collaborative node insertion no longer relies on timestamp-plus-counter IDs that can collide across clients.
 
 ## In Progress
 
