@@ -55,16 +55,16 @@ Radius increases with surface depth — smaller for inner elements, larger for o
 
 | Node fill | Text color | Character              |
 | --------- | ---------- | ---------------------- |
-| `#1F1F1F` | `#EDEDED`  | Neutral dark (default) |
-| `#10233D` | `#52A8FF`  | Blue                   |
-| `#2E1938` | `#BF7AF0`  | Purple                 |
-| `#331B00` | `#FF990A`  | Orange                 |
-| `#3C1618` | `#FF6166`  | Red                    |
-| `#3A1726` | `#F75F8F`  | Pink                   |
-| `#0F2E18` | `#62C073`  | Green                  |
-| `#062822` | `#0AC7B4`  | Teal                   |
+| `#252528` | `#F2F2F2`  | Neutral dark (default) |
+| `#153D68` | `#79BBFF`  | Blue                   |
+| `#3B2154` | `#C98FFF`  | Purple                 |
+| `#4A2904` | `#FFB54D`  | Orange                 |
+| `#4A1D24` | `#FF7B86`  | Red                    |
+| `#4C2238` | `#FF78B3`  | Pink                   |
+| `#123F23` | `#7EE787`  | Green                  |
+| `#0B3B34` | `#2CE6C7`  | Teal                   |
 
-Default node color: `#1F1F1F` with `#EDEDED` text.
+Default node color: `#252528` with `#F2F2F2` text.
 
 ### Edge Style
 

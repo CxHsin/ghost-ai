@@ -15,6 +15,7 @@ import { BaseCanvas } from "@/components/editor/base-canvas";
 import { Button } from "@/components/ui/button";
 
 interface EditorCanvasRoomProps {
+  openTemplatesRequest?: number;
   roomId: string;
 }
 
@@ -53,7 +54,32 @@ function CanvasErrorState({ message, onRetry }: CanvasErrorStateProps) {
   );
 }
 
-function CanvasRoomContent() {
+export function EditorCanvasRoom({
+  openTemplatesRequest,
+  roomId,
+}: EditorCanvasRoomProps) {
+  return (
+    <LiveblocksProvider authEndpoint="/api/liveblocks-auth">
+      <RoomProvider
+        id={roomId}
+        initialPresence={{
+          cursor: null,
+          isThinking: false,
+        }}
+      >
+        <ClientSideSuspense fallback={<CanvasLoadingState />}>
+          {() => <CanvasRoomContent openTemplatesRequest={openTemplatesRequest} />}
+        </ClientSideSuspense>
+      </RoomProvider>
+    </LiveblocksProvider>
+  );
+}
+
+function CanvasRoomContent({
+  openTemplatesRequest,
+}: {
+  openTemplatesRequest?: number;
+}) {
   const room = useRoom();
   const status = useStatus();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -71,23 +97,5 @@ function CanvasRoomContent() {
     return <CanvasErrorState message={errorMessage} onRetry={handleRetry} />;
   }
 
-  return <BaseCanvas />;
-}
-
-export function EditorCanvasRoom({ roomId }: EditorCanvasRoomProps) {
-  return (
-    <LiveblocksProvider authEndpoint="/api/liveblocks-auth">
-      <RoomProvider
-        id={roomId}
-        initialPresence={{
-          cursor: null,
-          isThinking: false,
-        }}
-      >
-        <ClientSideSuspense fallback={<CanvasLoadingState />}>
-          {() => <CanvasRoomContent />}
-        </ClientSideSuspense>
-      </RoomProvider>
-    </LiveblocksProvider>
-  );
+  return <BaseCanvas openTemplatesRequest={openTemplatesRequest} />;
 }

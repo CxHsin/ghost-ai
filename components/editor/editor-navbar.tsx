@@ -2,13 +2,14 @@
 
 import { UserButton } from "@clerk/nextjs";
 import { type ReactNode } from "react";
-import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { LayoutTemplate, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
 interface EditorNavbarProps {
   actions?: ReactNode;
   isSidebarOpen: boolean;
+  onOpenTemplates?: () => void;
   onToggleSidebar: () => void;
   subtitle?: string;
   title?: string;
@@ -17,6 +18,7 @@ interface EditorNavbarProps {
 export function EditorNavbar({
   actions,
   isSidebarOpen,
+  onOpenTemplates,
   onToggleSidebar,
   subtitle = "Workspace",
   title = "Ghost AI Workspace",
@@ -42,6 +44,18 @@ export function EditorNavbar({
       </div>
 
       <div className="flex flex-1 items-center justify-end gap-2">
+        {onOpenTemplates ? (
+          <Button
+            variant="outline"
+            size="sm"
+            type="button"
+            className="rounded-2xl"
+            onClick={onOpenTemplates}
+          >
+            <LayoutTemplate />
+            Templates
+          </Button>
+        ) : null}
         {actions}
         <UserButton />
       </div>

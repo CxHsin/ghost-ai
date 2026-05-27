@@ -140,3 +140,40 @@
     color: var(--text-primary);
   }
 }
+
+.react-flow__handle.canvas-node-handle {
+  height: 0.625rem;
+  width: 0.625rem;
+  border: 1px solid rgba(42, 42, 48, 0.96) !important;
+  border-radius: 999px;
+  background: rgba(240, 240, 244, 0.96) !important;
+  box-shadow: 0 0 0 1px rgba(8, 8, 9, 0.42) !important;
+  transition:
+    opacity 120ms ease,
+    transform 120ms ease,
+    background-color 120ms ease,
+    border-color 120ms ease,
+    box-shadow 120ms ease;
+  transform-origin: center;
+}
+
+.react-flow__handle.canvas-node-handle.connectionindicator {
+  opacity: 1 !important;
+  transform: scale(1.06) !important;
+  background: rgba(240, 240, 244, 0.98) !important;
+  border-color: rgba(8, 8, 9, 0.92) !important;
+  box-shadow:
+    0 0 0 1px rgba(8, 8, 9, 0.42),
+    0 0 10px rgba(240, 240, 244, 0.18) !important;
+}
+
+.react-flow__edge-path {
+  transition:
+    stroke 140ms ease,
+    stroke-width 140ms ease,
+    opacity 140ms ease;
+}
+
+.react-flow__arrowhead {
+  fill: rgba(240, 240, 244, 0.92);
+}

@@ -1,6 +1,6 @@
 "use client";
 
-import { Bot, Share2, SidebarOpen } from "lucide-react";
+import { Bot, Share2, Sparkles } from "lucide-react";
 import { useState } from "react";
 
 import { EditorCanvasRoom } from "@/components/editor/editor-canvas-room";
@@ -35,6 +35,7 @@ export function EditorWorkspaceShell({
   const [isAiSidebarOpen, setIsAiSidebarOpen] = useState(true);
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [openTemplatesRequest, setOpenTemplatesRequest] = useState(0);
   const {
     activeDialog,
     closeDialog,
@@ -59,6 +60,7 @@ export function EditorWorkspaceShell({
     <div className="relative flex min-h-screen flex-col overflow-hidden bg-base">
       <EditorNavbar
         isSidebarOpen={isSidebarOpen}
+        onOpenTemplates={() => setOpenTemplatesRequest((current) => current + 1)}
         onToggleSidebar={() => setIsSidebarOpen((current) => !current)}
         title={currentProject.name}
         subtitle="Workspace"
@@ -75,14 +77,17 @@ export function EditorWorkspaceShell({
               Share
             </Button>
             <Button
-              variant="default"
+              variant={isAiSidebarOpen ? "default" : "outline"}
               size="sm"
               type="button"
-              className="rounded-2xl"
+              className={cn(
+                "rounded-2xl",
+                isAiSidebarOpen ? "shadow-[0_0_24px_rgba(0,200,212,0.18)]" : "",
+              )}
               onClick={() => setIsAiSidebarOpen((current) => !current)}
               aria-pressed={isAiSidebarOpen}
             >
-              <SidebarOpen />
+              <Sparkles />
               AI
             </Button>
           </>
@@ -103,7 +108,10 @@ export function EditorWorkspaceShell({
 
         <div className="relative flex flex-1 overflow-hidden p-3 pt-4 sm:p-4">
           <main className="relative flex flex-1 overflow-hidden rounded-3xl border border-surface-border bg-surface/50">
-            <EditorCanvasRoom roomId={currentProject.roomId} />
+            <EditorCanvasRoom
+              roomId={currentProject.roomId}
+              openTemplatesRequest={openTemplatesRequest}
+            />
           </main>
 
           <aside

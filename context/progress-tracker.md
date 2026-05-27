@@ -8,7 +8,7 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Current Goal
 
-- Add the bottom shape panel from `context/feature-specs/feature-specs/12-shape-panel.md` so users can drag new nodes onto the collaborative canvas.
+- Add a starter template library with import previews and wire template replacement into the collaborative canvas.
 
 ## Completed
 
@@ -123,14 +123,77 @@ Update this file whenever the current phase, active feature, or implementation s
 - Clarified the create-project success path in `hooks/use-project-actions.ts` so the post-create editor navigation explicitly uses the created room ID variable, matching the existing project ID and room ID alignment across the workspace routes.
 - Hardened collaborator invite input parsing in `lib/project-collaborators.ts` so blank or malformed email addresses are rejected at the API boundary before they can enter the project sharing flow.
 - Switched canvas node ID generation in `types/canvas.ts` to `crypto.randomUUID()` so collaborative node insertion no longer relies on timestamp-plus-counter IDs that can collide across clients.
+- Added `components/editor/canvas-shape.tsx` as the shared shape renderer for collaborative nodes and drag previews, with CSS-backed rectangle, pill, and circle variants plus SVG-backed diamond, cylinder, and hexagon variants that scale with node size.
+- Replaced the placeholder node box in `components/editor/canvas-node.tsx` so each collaborative node now renders its actual configured shape with the existing canvas color palette and a brighter selected-state border.
+- Extended `components/editor/base-canvas.tsx` with a cursor-following drag ghost preview for the bottom shape panel, using the same shape type and default size as the dropped node while keeping node creation logic unchanged.
+- Verified the `13-node-shape.md` implementation with `npm run lint` and `npm run build`.
+- Added shape-specific minimum canvas node sizes in `types/canvas.ts` so resize interactions stay within stable visual bounds across all supported node shapes.
+- Extended `components/editor/canvas-shape.tsx` to accept custom label content while preserving the existing shape visuals, allowing node display and editing states to share the same centered label slot.
+- Updated `components/editor/canvas-node.tsx` to show subtle resize handles on selected nodes via React Flow's `NodeResizer`, keeping size changes on the existing collaborative node sync path.
+- Added inline node label editing in `components/editor/canvas-node.tsx` with centered placeholder text, double-click-to-edit, live collaborative updates as users type, and blur/Escape exit behavior.
+- Prevented inline text editing interactions from dragging or panning the canvas by isolating textarea pointer and wheel events inside the node editor overlay.
+- Verified the `14-node-editing.md` implementation with `npm run lint` and `npm run build`.
+- Restored four-sided canvas connection handles in `components/editor/canvas-node.tsx` so custom nodes remain connectable after the node editing UI changes, while keeping handles hidden until hover or selection and disabled during inline text editing.
+- Refined canvas connection feedback in `app/globals.css` and `components/editor/base-canvas.tsx` so handles also reveal during active connection targeting, the connection hit radius is more forgiving, and new edges render with the approved bright smooth-step arrow styling.
+- Replaced the visible outer connection dots with inset dual-purpose source/target handles in `components/editor/canvas-node.tsx`, keeping nodes visually clean while making edge creation more reliable across all four sides.
+- Updated the selected-node connection anchors in `app/globals.css` so connectable points are visibly rendered only after a node is selected, while active connections still highlight with the accent color.
+- Removed edge arrowheads in `components/editor/base-canvas.tsx` so newly created connections render as undirected smooth-step lines.
+- Refined the selected-node anchor styling in `app/globals.css` to match the approved compact white-dot visual direction, while keeping handles hidden until the user selects a node.
+- Updated `components/editor/base-canvas.tsx` so connections now render as thin white bezier curves instead of boxier stepped paths, aligning the canvas edge feel more closely with the approved reference.
+- Nudged the selected-node connection anchors outward in `components/editor/canvas-node.tsx` and reduced their visual weight in `app/globals.css` so they sit just outside the node boundary as smaller white dots.
+- Added `components/editor/canvas-edge.tsx` plus typed edge registration in `components/editor/base-canvas.tsx` so canvas lines terminate at the connection-dot edge instead of running through the dot center.
+- Tightened the shared connection spacing in `components/editor/canvas-node.tsx` so the visible anchor dots sit closer to each node edge while preserving consistent line termination against the dot boundary.
+- Centralized the canvas connection dot size and spacing constants in `types/canvas.ts` so node anchor placement and edge termination now share one consistent gap model across all shapes.
+- Reduced the shared connection dot size and gap constants in `types/canvas.ts` again so every shape now sits closer to its connected lines, matching the tighter visual spacing direction from the approved reference.
+- Tightened the shared connection dot constants once more in `types/canvas.ts` so every shape and line now uses the same near-flush spacing target aligned with the latest reference.
+- Added a shared outer-bounds padding constant in `types/canvas.ts` and inset shape rendering in `components/editor/canvas-shape.tsx` so all node shapes now sit inside a consistent axis-aligned editing box instead of mixing tight-fit and outer-rect behavior.
+- Normalized the SVG shape paths in `components/editor/canvas-shape.tsx` so diamond, hexagon, and cylinder now fill the same inner box model as rectangle, pill, and circle, making the visible gap to the shared outer bounding box consistent across all shapes.
+- Tightened `components/editor/canvas-edge.tsx` endpoint trimming so lines now terminate at the connection dot boundary itself instead of stopping short of the visible endpoint.
+- Kept the empty-state `Add label` copy visible during inline label editing in `components/editor/canvas-node.tsx` by rendering a centered editing overlay placeholder instead of relying on the textarea placeholder alone.
+- Removed the editing-state `Add label` overlay in `components/editor/canvas-node.tsx` so the placeholder disappears immediately after double-clicking into inline label editing, matching the requested node-editing behavior.
+- Added a floating selected-node color toolbar in `components/editor/canvas-node.tsx` that renders one swatch per predefined canvas color pair and stays isolated from node dragging and canvas panning interactions.
+- Wired color swatch selection through the existing collaborative `reactFlow.updateNodeData()` path so node background and text colors update together immediately without any server calls.
+- Verified the `15-node-color-toolbar.md` implementation with `npm run lint` and `npm run build`.
+- Brightened the predefined node color palette in `types/canvas.ts` and synchronized the updated values in `context/ui-context.md` so canvas themes feel closer to the brighter reference direction.
+- Refined `components/editor/canvas-shape.tsx` so selected node outlines now inherit the active node text color, and cylinder nodes render with a more dimensional top cap, inner rim, and lower ellipse treatment.
+- Updated `components/editor/canvas-node.tsx` empty-label styling so text color changes now visibly affect both labeled and unlabeled nodes.
+- Verified the node visual refinement pass with `npm run lint` and `npm run build`.
+- Unified the cylinder default shading in `components/editor/canvas-shape.tsx` so its top and body highlights stay closer to the same subdued tone as the other default shapes.
+- Filled the cylinder bottom ellipse in `components/editor/canvas-shape.tsx` so database nodes no longer look hollow at the base.
+- Re-verified the cylinder visual correction with `npm run lint` and `npm run build`.
+- Adjusted the default node color pair in `types/canvas.ts` and `context/ui-context.md` so all unthemed nodes now share the darker neutral gray look from the approved database reference.
+- Tuned the cylinder default rendering in `components/editor/canvas-shape.tsx` to use neutral gray top and body shading instead of a brighter text-tinted highlight, aligning the default database node with the rest of the default shape set.
+- Re-verified the unified default node styling with `npm run lint` and `npm run build`.
+- Added typed edge label data in `types/canvas.ts` so collaborative canvas edges now store inline label text through the existing Liveblocks React Flow sync path.
+- Updated `components/editor/base-canvas.tsx` so new connections use the custom canvas edge type by default, render dimmed rounded strokes, and attach closed arrowheads at creation time.
+- Reworked `components/editor/canvas-node.tsx` handle rendering so every node side exposes both source and target handles, enabling connections from any side to any side without changing node creation behavior.
+- Replaced `components/editor/canvas-edge.tsx` with a custom routed edge renderer that uses `getSmoothStepPath`, brightens on hover and selection, adds a wide invisible hit path for easier clicking, and renders inline labels through `EdgeLabelRenderer`.
+- Added inline edge label editing in `components/editor/canvas-edge.tsx` with double-click-to-edit, auto-sizing input width, blur/Enter/Escape exit behavior, empty-label hinting on active edges, and collaborative updates through `reactFlow.updateEdgeData()`.
+- Refined edge and handle presentation in `app/globals.css` so handles fade in on node hover or selection, keep the requested subtle white-dot look with a dark border, and edge arrowheads inherit the approved bright finish.
+- Verified the `16-edge-behavior.md` implementation with `npm run lint` and `npm run build`.
+- Tightened `app/globals.css` handle visibility so node endpoints now appear only after selecting a shape, while active connection feedback still stays visible during linking.
+- Moved endpoint visibility control into `components/editor/canvas-node.tsx` so each handle now derives its hidden vs visible state directly from the node's `selected` prop, avoiding React Flow class-state leakage that kept unselected endpoints visible.
+- Restricted `isConnectableStart` in `components/editor/canvas-node.tsx` to selected nodes only, preventing React Flow's built-in `connectionindicator` state from lighting up every unselected node as a potential connection start point.
+- Updated the `MiniMap` node fill in `components/editor/base-canvas.tsx` to a light blue tone so the lower-right overview window matches the requested brighter visual treatment.
+- Added `components/editor/canvas-controls.tsx` with a bottom-left pill control bar for zoom out, fit view, zoom in, undo, and redo, including the requested divider and dimmed disabled history states.
+- Wired `components/editor/base-canvas.tsx` to React Flow viewport helpers with short animations and to Liveblocks `useUndo`, `useRedo`, `useCanUndo`, and `useCanRedo` for collaborative history controls.
+- Added `hooks/useKeyboardShortcuts.ts` so the canvas now supports `+` / `=`, `-`, `Cmd/Ctrl + Z`, `Cmd/Ctrl + Shift + Z`, and `Cmd/Ctrl + Y`, while ignoring shortcuts inside editable fields.
+- Verified the `17-canvas-ergonomics.md.md` implementation with `npm run build`.
+- Added `components/editor/starter-templates.ts` with shared typed starter canvas data for microservices, CI/CD, and event-driven system diagrams.
+- Added `components/editor/starter-templates-modal.tsx` with a scrollable template grid, lightweight SVG previews, and import actions for each predefined template.
+- Updated `components/editor/base-canvas.tsx` to open the starter template picker from the canvas chrome, replace the current collaborative canvas with the selected template through Liveblocks storage, and fit the viewport after import.
+- Updated `components/editor/editor-navbar.tsx`, `components/editor/editor-workspace-shell.tsx`, and `components/editor/editor-canvas-room.tsx` so the workspace navbar exposes the template import entry point and can open the modal from the active room.
+- Verified the `18-starter-templates.md` implementation with `npm run build`.
+- Removed the bottom floating `Templates` button from `components/editor/base-canvas.tsx` so template import stays available from the top workspace navbar only.
+- Refined the workspace AI toggle in `components/editor/editor-workspace-shell.tsx` with a lighter `Sparkles` icon and stateful styling so it matches the other outline actions when closed and only uses the accent button treatment while open.
 
 ## In Progress
 
-- Verifying the `12-shape-panel.md` implementation with a production build.
+- Waiting for the next canvas editing feature unit.
 
 ## Next Up
 
-- Add shape-specific node visuals on top of the new custom node renderer so rectangle, diamond, circle, pill, cylinder, and hexagon no longer share the same placeholder rectangle.
+- Return to the next selected canvas editing feature after the starter template implementation.
 
 ## Open Questions
 
@@ -155,3 +218,9 @@ Update this file whenever the current phase, active feature, or implementation s
 - Active realtime collaboration setup follows `context/feature-specs/feature-specs/10-liveblocks-setup.md`.
 - Active base canvas work followed `context/feature-specs/feature-specs/11-base-canvas.md`.
 - Active shape panel work follows `context/feature-specs/feature-specs/12-shape-panel.md`.
+- Active node shape rendering work follows `context/feature-specs/feature-specs/13-node-shape.md`.
+- Active node editing work follows `context/feature-specs/feature-specs/14-node-editing.md`.
+- Active node color toolbar work follows `context/feature-specs/feature-specs/15-node-color-toolbar.md`.
+- Active edge behavior work follows `context/feature-specs/feature-specs/16-edge-behavior.md`.
+- Active canvas ergonomics work follows `context/feature-specs/feature-specs/17-canvas-ergonomics.md.md`.
+- Active starter template work follows `context/feature-specs/feature-specs/18-starter-templates.md`.
