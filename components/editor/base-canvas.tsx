@@ -258,27 +258,28 @@ function BaseCanvasFlow({
       }
 
       history.pause();
-
-      flow.set(
-        "nodes",
-        new LiveMap(
-          template.nodes.map((node) => [
-            node.id,
-            LiveObject.from(serializeCanvasNode(node), LIVEBLOCKS_NODE_SYNC_CONFIG),
-          ]),
-        ),
-      );
-      flow.set(
-        "edges",
-        new LiveMap(
-          template.edges.map((edge) => [
-            edge.id,
-            LiveObject.from(serializeCanvasEdge(edge), LIVEBLOCKS_EDGE_SYNC_CONFIG),
-          ]),
-        ),
-      );
-
-      history.resume();
+      try {
+        flow.set(
+          "nodes",
+          new LiveMap(
+            template.nodes.map((node) => [
+              node.id,
+              LiveObject.from(serializeCanvasNode(node), LIVEBLOCKS_NODE_SYNC_CONFIG),
+            ]),
+          ),
+        );
+        flow.set(
+          "edges",
+          new LiveMap(
+            template.edges.map((edge) => [
+              edge.id,
+              LiveObject.from(serializeCanvasEdge(edge), LIVEBLOCKS_EDGE_SYNC_CONFIG),
+            ]),
+          ),
+        );
+      } finally {
+        history.resume();
+      }
     },
     [history],
   );
@@ -445,6 +446,7 @@ function BaseCanvasFlow({
       const [newEdge] = addEdge(
         {
           ...connection,
+          id: `edge-${crypto.randomUUID()}`,
           type: CANVAS_EDGE_TYPE,
         },
         [],

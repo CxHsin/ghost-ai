@@ -186,6 +186,10 @@ Update this file whenever the current phase, active feature, or implementation s
 - Verified the `18-starter-templates.md` implementation with `npm run build`.
 - Removed the bottom floating `Templates` button from `components/editor/base-canvas.tsx` so template import stays available from the top workspace navbar only.
 - Refined the workspace AI toggle in `components/editor/editor-workspace-shell.tsx` with a lighter `Sparkles` icon and stateful styling so it matches the other outline actions when closed and only uses the accent button treatment while open.
+- Hardened template import history handling in `components/editor/base-canvas.tsx` by wrapping the Liveblocks storage replacement in `try/finally`, ensuring undo/redo always resumes even if a storage write throws.
+- Hardened collaborative edge creation in `components/editor/base-canvas.tsx` by assigning a UUID-backed edge ID before calling `addEdge`, preventing repeated connections on the same handles from reusing a deterministic React Flow ID and overwriting existing edge labels in Liveblocks storage.
+- Added keyboard-triggered edge label editing in `components/editor/canvas-edge.tsx` so focused edge labels can enter inline edit mode with `Enter`, `Space`, or `F2` in addition to mouse double-click.
+- Added keyboard-accessible node label editing in `components/editor/canvas-node.tsx` so focused node labels can enter inline edit mode with `Enter`, `Space`, or `F2` in addition to mouse double-click.
 
 ## In Progress
 
@@ -222,5 +226,5 @@ Update this file whenever the current phase, active feature, or implementation s
 - Active node editing work follows `context/feature-specs/feature-specs/14-node-editing.md`.
 - Active node color toolbar work follows `context/feature-specs/feature-specs/15-node-color-toolbar.md`.
 - Active edge behavior work follows `context/feature-specs/feature-specs/16-edge-behavior.md`.
-- Active canvas ergonomics work follows `context/feature-specs/feature-specs/17-canvas-ergonomics.md.md`.
+- Active canvas ergonomics work follows `context/feature-specs/feature-specs/17-canvas-ergonomics.md`.
 - Active starter template work follows `context/feature-specs/feature-specs/18-starter-templates.md`.

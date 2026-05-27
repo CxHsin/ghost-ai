@@ -193,6 +193,16 @@ export function CanvasEdge({
                 stopInteraction(event);
                 setIsEditing(true);
               }}
+              onKeyDown={(event) => {
+                if (
+                  event.key === "Enter" ||
+                  event.key === " " ||
+                  event.key === "F2"
+                ) {
+                  stopInteraction(event);
+                  setIsEditing(true);
+                }
+              }}
               onMouseDown={stopInteraction}
               onPointerDown={stopInteraction}
               onMouseEnter={() => setIsHovered(true)}

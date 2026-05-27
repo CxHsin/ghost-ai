@@ -140,11 +140,25 @@ export function CanvasNode({ id, data, selected }: NodeProps<CanvasNode>) {
     </div>
   ) : (
     <div
+      role="button"
+      tabIndex={0}
+      aria-label="Edit node label"
       className={`absolute inset-0 z-10 flex items-center justify-center text-center ${shapePadding}`}
       onDoubleClick={(event) => {
         event.preventDefault();
         event.stopPropagation();
         setIsEditing(true);
+      }}
+      onKeyDown={(event) => {
+        if (
+          event.key === "Enter" ||
+          event.key === " " ||
+          event.key === "F2"
+        ) {
+          event.preventDefault();
+          event.stopPropagation();
+          setIsEditing(true);
+        }
       }}
     >
       <span
