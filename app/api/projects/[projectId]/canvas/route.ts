@@ -59,35 +59,45 @@ export async function GET(
     );
   }
 
-  const blob = await get(project.canvasJsonPath, {
-    access: "private",
-    token: blobWriteToken,
-    useCache: false,
-  });
+  try {
+    const blob = await get(project.canvasJsonPath, {
+      access: "private",
+      token: blobWriteToken,
+      useCache: false,
+    });
 
-  if (!blob || blob.statusCode !== 200) {
+    if (!blob || blob.statusCode !== 200) {
+      return jsonError(
+        502,
+        "CANVAS_LOAD_FAILED",
+        "Unable to load the saved canvas state.",
+      );
+    }
+
+    const payload = (await new Response(blob.stream).json().catch(() => null)) as unknown;
+    const snapshot = parseCanvasSnapshot(payload);
+
+    if (!snapshot) {
+      return jsonError(
+        502,
+        "INVALID_CANVAS_BLOB",
+        "Saved canvas data is invalid.",
+      );
+    }
+
+    return jsonData({
+      canvas: snapshot,
+      canvasJsonPath: project.canvasJsonPath,
+    });
+  } catch (error) {
+    console.error("Canvas load route failed.", error);
+
     return jsonError(
       502,
       "CANVAS_LOAD_FAILED",
       "Unable to load the saved canvas state.",
     );
   }
-
-  const payload = (await new Response(blob.stream).json().catch(() => null)) as unknown;
-  const snapshot = parseCanvasSnapshot(payload);
-
-  if (!snapshot) {
-    return jsonError(
-      502,
-      "INVALID_CANVAS_BLOB",
-      "Saved canvas data is invalid.",
-    );
-  }
-
-  return jsonData({
-    canvas: snapshot,
-    canvasJsonPath: project.canvasJsonPath,
-  });
 }
 
 export async function PUT(

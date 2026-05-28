@@ -444,7 +444,13 @@ function BaseCanvasFlow({
     }
 
     if (roomHasCanvasContent) {
-      return;
+      const resolveInitialLoadTimeout = window.setTimeout(() => {
+        setHasResolvedInitialCanvasLoad(true);
+      }, 0);
+
+      return () => {
+        window.clearTimeout(resolveInitialLoadTimeout);
+      };
     }
 
     let isCancelled = false;

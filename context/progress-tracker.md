@@ -218,6 +218,7 @@ Update this file whenever the current phase, active feature, or implementation s
 - Hardened canvas autosave failure handling so client-side save errors now stay in the Save button's `error` state without triggering a Next.js dev console overlay, while the save route now passes the blob token explicitly and returns a stable JSON `CANVAS_SAVE_FAILED` response for unexpected persistence errors.
 - Reworked the workspace-only Save button wiring so `EditorNavbar` now renders it only in the active room workspace, drives its text through `Save` / `Saving...` / `Saved` / `Error`, and uses the same debounced canvas persistence function for both autosave and manual save clicks without affecting the shared editor-home navbar.
 - Updated `app/api/projects/[projectId]/canvas/route.ts` so canvas snapshots are stored in Vercel Blob with `access: "private"` and saved canvas loads now use the Vercel Blob SDK's private `get()` flow instead of raw URL fetches.
+- Hardened `app/api/projects/[projectId]/canvas/route.ts` GET loading so Vercel Blob SDK read failures are logged and mapped to the existing structured `CANVAS_LOAD_FAILED` JSON response instead of surfacing as unstructured route errors.
 - Fixed the autosave baseline logic in `hooks/use-canvas-autosave.ts` and `components/editor/base-canvas.tsx` so a new room's first real canvas edit is no longer treated as already saved, allowing the first autosave or manual Save click to write the initial project snapshot to Blob and backfill `canvasJsonPath` in Prisma.
 - Updated `components/editor/canvas-node.tsx` so canvas connection endpoints now appear when a node is hovered as well as when it is selected, and hovering a node also enables starting a new connection from those visible endpoints without changing inline editing behavior.
 - Added custom collaborative Delete and Backspace handling in `components/editor/base-canvas.tsx` so selected nodes and edges can now be removed through the existing Liveblocks-backed node and edge mutation helpers while ignoring editable inputs and disabling React Flow's built-in keyboard deletion path.
@@ -225,6 +226,10 @@ Update this file whenever the current phase, active feature, or implementation s
 - Updated drag preview anchoring and drop math in `components/editor/base-canvas.tsx` so dropped shapes continue to land with their center under the cursor using explicit cursor-anchor handling instead of relying on implicit drag-image defaults.
 - Added `img.clerk.com` to `next.config.ts` remote image host patterns so Clerk-served collaborator avatars can render without Next image host errors.
 - Updated `components/editor/editor-navbar.tsx` and `components/editor/editor-workspace-shell.tsx` so the shared navbar now hides the Clerk `UserButton` only inside the workspace view while keeping it unchanged on the editor home screen.
+- Updated `components/editor/ai-sidebar.tsx` so the hidden desktop AI sidebar now uses `inert` alongside `aria-hidden`, removing off-screen controls from keyboard focus order while preserving the existing slide animation.
+- Fixed the initial canvas bootstrap gate in `components/editor/base-canvas.tsx` so rooms that already contain collaborative content still mark initial load as resolved, allowing later full-canvas clears to autosave and persist an intentionally empty snapshot.
+- Hardened `hooks/use-canvas-autosave.ts` so debounced autosave requests now pass an `AbortSignal` into the canvas PUT request and ignore aborted completions, preventing stale in-flight saves from updating UI state after cleanup.
+- Restored the workspace navbar account control in `components/editor/editor-workspace-shell.tsx` by letting `EditorNavbar` render Clerk's `UserButton` again beside the workspace actions.
 
 ## In Progress
 

@@ -86,12 +86,13 @@ export function useCanvasAutosave({
   }, [edges, nodes]);
 
   const saveSnapshot = useCallback(
-    async (serializedSnapshot: string) => {
+    async (serializedSnapshot: string, signal?: AbortSignal) => {
       clearStatusResetTimeout();
       setSaveStatus("saving");
 
       const response = await fetch(`/api/projects/${projectId}/canvas`, {
         method: "PUT",
+        signal,
         headers: {
           "Content-Type": "application/json",
         },
@@ -103,6 +104,10 @@ export function useCanvasAutosave({
         throw new Error(
           await readErrorMessage(response, "Failed to save canvas changes."),
         );
+      }
+
+      if (!isMountedRef.current || signal?.aborted) {
+        return;
       }
 
       lastSavedSnapshotRef.current = serializedSnapshot;
@@ -161,7 +166,7 @@ export function useCanvasAutosave({
     const abortController = new AbortController();
     const saveTimeout = window.setTimeout(async () => {
       try {
-        await saveSnapshot(serializedSnapshot);
+        await saveSnapshot(serializedSnapshot, abortController.signal);
       } catch {
         if (abortController.signal.aborted) {
           return;

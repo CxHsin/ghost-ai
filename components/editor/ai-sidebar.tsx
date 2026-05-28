@@ -103,6 +103,7 @@ export function AiSidebar({ isOpen, onClose }: AiSidebarProps) {
         isOpen ? "translate-x-0 opacity-100" : "translate-x-[calc(100%+1rem)] opacity-0",
       )}
       aria-hidden={!isOpen}
+      inert={!isOpen}
     >
       <div
         className={cn(

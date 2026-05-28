@@ -69,7 +69,6 @@ export function EditorWorkspaceShell({
         onToggleSidebar={() => setIsSidebarOpen((current) => !current)}
         saveStatus={saveStatus}
         showSaveButton
-        showUserButton={false}
         title={currentProject.name}
         subtitle="Workspace"
         actions={
