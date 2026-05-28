@@ -41,7 +41,11 @@ export async function PATCH(request: Request, context: ProjectRouteContext) {
   }
 
   if (result.kind === "forbidden") {
-    return jsonError(403, "FORBIDDEN", "Only the project owner can update this project.");
+    return jsonError(
+      403,
+      "FORBIDDEN",
+      "Only the project owner can update this project.",
+    );
   }
 
   return jsonData({ project: result.project });
@@ -62,7 +66,11 @@ export async function DELETE(_request: Request, context: ProjectRouteContext) {
   }
 
   if (result.kind === "forbidden") {
-    return jsonError(403, "FORBIDDEN", "Only the project owner can delete this project.");
+    return jsonError(
+      403,
+      "FORBIDDEN",
+      "Only the project owner can delete this project.",
+    );
   }
 
   return jsonData({ deletedProjectId: projectId });

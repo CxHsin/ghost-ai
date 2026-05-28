@@ -1,8 +1,9 @@
 "use client";
 
-import { Bot, Share2, Sparkles } from "lucide-react";
+import { Share2, Sparkles } from "lucide-react";
 import { useState } from "react";
 
+import { AiSidebar } from "@/components/editor/ai-sidebar";
 import { EditorCanvasRoom } from "@/components/editor/editor-canvas-room";
 import { EditorNavbar } from "@/components/editor/editor-navbar";
 import { ProjectDialogs } from "@/components/editor/project-dialogs";
@@ -12,6 +13,7 @@ import { ShareDialog } from "@/components/editor/share-dialog";
 import { Button } from "@/components/ui/button";
 import { useProjectActions } from "@/hooks/use-project-actions";
 import { cn } from "@/lib/utils";
+import { type CanvasSaveIndicatorState } from "@/types/canvas";
 
 interface WorkspaceProject {
   id: string;
@@ -33,6 +35,8 @@ export function EditorWorkspaceShell({
   sharedProjects,
 }: EditorWorkspaceShellProps) {
   const [isAiSidebarOpen, setIsAiSidebarOpen] = useState(true);
+  const [handleManualSave, setHandleManualSave] = useState<(() => void) | null>(null);
+  const [saveStatus, setSaveStatus] = useState<CanvasSaveIndicatorState>("idle");
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [openTemplatesRequest, setOpenTemplatesRequest] = useState(0);
@@ -61,7 +65,11 @@ export function EditorWorkspaceShell({
       <EditorNavbar
         isSidebarOpen={isSidebarOpen}
         onOpenTemplates={() => setOpenTemplatesRequest((current) => current + 1)}
+        onSave={() => handleManualSave?.()}
         onToggleSidebar={() => setIsSidebarOpen((current) => !current)}
+        saveStatus={saveStatus}
+        showSaveButton
+        showUserButton={false}
         title={currentProject.name}
         subtitle="Workspace"
         actions={
@@ -109,63 +117,15 @@ export function EditorWorkspaceShell({
         <div className="relative flex flex-1 overflow-hidden p-3 pt-4 sm:p-4">
           <main className="relative flex flex-1 overflow-hidden rounded-3xl border border-surface-border bg-surface/50">
             <EditorCanvasRoom
+              isAiSidebarOpen={isAiSidebarOpen}
+              onSaveActionChange={(action) => setHandleManualSave(() => action)}
+              onSaveStatusChange={setSaveStatus}
+              projectId={currentProject.id}
               roomId={currentProject.roomId}
               openTemplatesRequest={openTemplatesRequest}
             />
           </main>
-
-          <aside
-            className={cn(
-              "pointer-events-none absolute inset-y-4 right-4 z-10 hidden w-[21rem] overflow-hidden rounded-3xl border border-surface-border bg-surface/95 shadow-2xl shadow-black/25 backdrop-blur-sm transition-all duration-300 ease-out lg:flex lg:flex-col",
-              isAiSidebarOpen
-                ? "translate-x-0 opacity-100"
-                : "translate-x-[calc(100%+1rem)] opacity-0",
-            )}
-            aria-hidden={!isAiSidebarOpen}
-          >
-            <div
-              className={cn(
-                "pointer-events-auto flex h-full flex-col transition-transform duration-300 ease-out",
-                isAiSidebarOpen ? "translate-x-0" : "translate-x-6",
-              )}
-            >
-              <div className="border-b border-surface-border px-5 py-4">
-                <h2 className="text-xl font-semibold tracking-tight text-copy-primary">
-                  AI Copilot
-                </h2>
-                <p className="mt-1 text-sm text-copy-faint">Placeholder panel</p>
-              </div>
-
-              <div className="flex flex-1 flex-col gap-4 px-5 py-5">
-                <div className="rounded-3xl border border-surface-border bg-subtle/60 p-5">
-                  <div className="flex items-start gap-4">
-                    <div className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-ai/15 text-ai-text">
-                      <Bot className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-medium text-copy-primary">
-                        Chat surface pending
-                      </h3>
-                      <p className="mt-2 text-sm leading-7 text-copy-muted">
-                        The toggle is wired. Messaging and generation are intentionally
-                        out of scope here.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-auto rounded-3xl border border-dashed border-surface-border-subtle bg-base/40 p-5">
-                  <p className="text-xs font-medium tracking-[0.3em] text-copy-faint uppercase">
-                    Future Hooks
-                  </p>
-                  <p className="mt-4 text-sm leading-8 text-copy-muted">
-                    Prompt composer, run status, and architecture guidance will attach
-                    to this sidebar.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </aside>
+          <AiSidebar isOpen={isAiSidebarOpen} onClose={() => setIsAiSidebarOpen(false)} />
         </div>
       </div>
 

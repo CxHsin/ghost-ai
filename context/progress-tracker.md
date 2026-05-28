@@ -8,7 +8,7 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Current Goal
 
-- Add a starter template library with import previews and wire template replacement into the collaborative canvas.
+- Wait for the next selected canvas or AI workflow feature after completing `21-canvas-autosave.md`.
 
 ## Completed
 
@@ -190,14 +190,49 @@ Update this file whenever the current phase, active feature, or implementation s
 - Hardened collaborative edge creation in `components/editor/base-canvas.tsx` by assigning a UUID-backed edge ID before calling `addEdge`, preventing repeated connections on the same handles from reusing a deterministic React Flow ID and overwriting existing edge labels in Liveblocks storage.
 - Added keyboard-triggered edge label editing in `components/editor/canvas-edge.tsx` so focused edge labels can enter inline edit mode with `Enter`, `Space`, or `F2` in addition to mouse double-click.
 - Added keyboard-accessible node label editing in `components/editor/canvas-node.tsx` so focused node labels can enter inline edit mode with `Enter`, `Space`, or `F2` in addition to mouse double-click.
+- Fixed the workspace sidebar sizing to the approved visual widths and removed the temporary desktop drag-to-resize behavior so the `Projects` and `AI Copilot` panels stay stable and match the reference layout.
+- Added `components/editor/canvas-presence-overlay.tsx` to render a room-only top-right presence group inside the canvas view, showing up to five collaborator avatars, a `+N` overflow chip, and a separate Clerk `UserButton` for the current user.
+- Updated `components/editor/base-canvas.tsx` to broadcast `cursor` presence from React Flow mouse movement, clear it on mouse leave and unmount, and render live collaborator cursors plus the new presence overlay without changing the shared navbar.
+- Renamed the shared Liveblocks presence flag from `isThinking` to `thinking` in `liveblocks.config.ts` and `components/editor/editor-canvas-room.tsx` so the presence schema matches `19-presence-avatars-cursors.md`.
+- Adjusted the starter template open-request effect in `components/editor/base-canvas.tsx` to open asynchronously, satisfying the current React lint rule without changing the existing modal behavior.
+- Verified the `19-presence-avatars-cursors.md` implementation with `npm run build` and `npm run lint`.
+- Added `components/editor/ai-sidebar.tsx` as the dedicated floating AI sidebar component, keeping the existing parent-controlled open state, right-side slide-in motion, and overlay shell styling while replacing the placeholder content.
+- Built the `AI Workspace` sidebar header plus shadcn `Tabs` layout with `AI Architect` and `Specs` sections, using the existing project token palette for the AI-focused surfaces, text, and actions.
+- Implemented the `AI Architect` UI shell with an empty-state prompt area, starter chips, auto-resizing textarea composer, Enter-to-send behavior, and local demo message bubbles so the chat layout can be reviewed before backend wiring.
+- Implemented the `Specs` tab shell with a `Generate Spec` action, a demo spec preview card, and a disabled download control to reserve the future artifact workflow.
+- Replaced the inline AI placeholder panel in `components/editor/editor-workspace-shell.tsx` with the new extracted sidebar component.
+- Verified the `20-ai-sidebar-shell.md` implementation with `npm run build` and `npm run lint`.
+- Refined `components/editor/ai-sidebar.tsx` so the top-right control is a clearer single-layer close button and the AI tab switcher uses flatter embedded active states without the previous floating visual treatment.
+- Re-verified the AI sidebar visual refinement with `npm run build` and `npm run lint`.
+- Hid the canvas top-right presence badge while the AI sidebar is open by threading the sidebar-open state through `EditorCanvasRoom` into `CanvasPresenceOverlay`, preventing the Clerk account trigger from overlapping the AI close control.
+- Tightened the AI sidebar tab trigger overrides again so shadcn's default active background and shadow treatment no longer leak through the flatter embedded tab styling.
+- Restored the navbar `UserButton` so the workspace keeps a single top-right account entry point, while continuing to omit the current-user trigger from `CanvasPresenceOverlay` and leaving only collaborator presence visuals in the canvas overlay.
+- Refined the AI sidebar tab switcher in `components/editor/ai-sidebar.tsx` into a tighter segmented control with a darker inset track, slightly smaller footprint, and clearer active-vs-inactive surface contrast.
+- Fixed the AI sidebar tab alignment in `components/editor/ai-sidebar.tsx` by giving the segmented track a fixed height and forcing each trigger to fill that track, eliminating the active-tab overhang against the background frame.
+- Installed `@vercel/blob` and added `app/api/projects/[projectId]/canvas/route.ts` so authenticated project members can persist canvas JSON to Vercel Blob and load saved canvas snapshots through Prisma's existing `canvasJsonPath` metadata field.
+- Added `lib/canvas-snapshot.ts` to centralize strict canvas snapshot serialization and payload validation across autosave, saved-canvas loading, and the new canvas persistence API routes.
+- Added `hooks/use-canvas-autosave.ts` with debounced canvas persistence, baseline snapshot tracking, and `saving` / `saved` / `error` state reporting.
+- Updated `components/editor/base-canvas.tsx` to bootstrap saved canvas state only when the collaborative room is still empty, skip loading when active nodes or edges already exist, and start autosave only after that initial load gate resolves.
+- Restored the workspace navbar save affordance by threading canvas save status from `BaseCanvas` through `EditorCanvasRoom` and `EditorWorkspaceShell` into `EditorNavbar`, where the Save button now shows live saving, saved, and error states.
+- Verified the `21-canvas-autosave.md` implementation with `npm run lint` and `npm run build`.
+- Hardened canvas autosave failure handling so client-side save errors now stay in the Save button's `error` state without triggering a Next.js dev console overlay, while the save route now passes the blob token explicitly and returns a stable JSON `CANVAS_SAVE_FAILED` response for unexpected persistence errors.
+- Reworked the workspace-only Save button wiring so `EditorNavbar` now renders it only in the active room workspace, drives its text through `Save` / `Saving...` / `Saved` / `Error`, and uses the same debounced canvas persistence function for both autosave and manual save clicks without affecting the shared editor-home navbar.
+- Updated `app/api/projects/[projectId]/canvas/route.ts` so canvas snapshots are stored in Vercel Blob with `access: "private"` and saved canvas loads now use the Vercel Blob SDK's private `get()` flow instead of raw URL fetches.
+- Fixed the autosave baseline logic in `hooks/use-canvas-autosave.ts` and `components/editor/base-canvas.tsx` so a new room's first real canvas edit is no longer treated as already saved, allowing the first autosave or manual Save click to write the initial project snapshot to Blob and backfill `canvasJsonPath` in Prisma.
+- Updated `components/editor/canvas-node.tsx` so canvas connection endpoints now appear when a node is hovered as well as when it is selected, and hovering a node also enables starting a new connection from those visible endpoints without changing inline editing behavior.
+- Added custom collaborative Delete and Backspace handling in `components/editor/base-canvas.tsx` so selected nodes and edges can now be removed through the existing Liveblocks-backed node and edge mutation helpers while ignoring editable inputs and disabling React Flow's built-in keyboard deletion path.
+- Removed the `fitView` mount prop from `components/editor/base-canvas.tsx` and kept explicit fit behavior only for saved-canvas bootstrap, template import, and manual controls so dropping the first node onto an empty canvas no longer auto-zooms the viewport.
+- Updated drag preview anchoring and drop math in `components/editor/base-canvas.tsx` so dropped shapes continue to land with their center under the cursor using explicit cursor-anchor handling instead of relying on implicit drag-image defaults.
+- Added `img.clerk.com` to `next.config.ts` remote image host patterns so Clerk-served collaborator avatars can render without Next image host errors.
+- Updated `components/editor/editor-navbar.tsx` and `components/editor/editor-workspace-shell.tsx` so the shared navbar now hides the Clerk `UserButton` only inside the workspace view while keeping it unchanged on the editor home screen.
 
 ## In Progress
 
-- Waiting for the next canvas editing feature unit.
+- Waiting for the next feature unit.
 
 ## Next Up
 
-- Return to the next selected canvas editing feature after the starter template implementation.
+- Return to the next selected canvas or AI generation feature unit.
 
 ## Open Questions
 
@@ -228,3 +263,6 @@ Update this file whenever the current phase, active feature, or implementation s
 - Active edge behavior work follows `context/feature-specs/feature-specs/16-edge-behavior.md`.
 - Active canvas ergonomics work follows `context/feature-specs/feature-specs/17-canvas-ergonomics.md`.
 - Active starter template work follows `context/feature-specs/feature-specs/18-starter-templates.md`.
+- Active presence avatar and cursor work follows `context/feature-specs/feature-specs/19-presence-avatars-cursors.md`.
+- Active AI sidebar shell work follows `context/feature-specs/feature-specs/20-ai-sidebar-shell.md`.
+- Active canvas autosave work follows `context/feature-specs/feature-specs/21-canvas-autosave.md`.

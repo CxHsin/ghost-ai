@@ -70,6 +70,52 @@ export interface CanvasEdgeData extends Record<string, unknown> {
 
 export type CanvasEdge = Edge<CanvasEdgeData, typeof CANVAS_EDGE_TYPE>;
 
+export type CanvasSaveStatus = "saving" | "saved" | "error";
+export type CanvasSaveIndicatorState = CanvasSaveStatus | "idle";
+
+export interface CanvasSnapshotNode {
+  data: CanvasNodeData;
+  height: number | null;
+  id: string;
+  position: {
+    x: number;
+    y: number;
+  };
+  type: typeof CANVAS_NODE_TYPE;
+  width: number | null;
+}
+
+export interface CanvasSnapshotEdgeMarker {
+  color: string | null;
+  height: number | null;
+  type: string;
+  width: number | null;
+}
+
+export interface CanvasSnapshotEdgeStyle {
+  stroke: string | null;
+  strokeLinecap: string | null;
+  strokeLinejoin: string | null;
+  strokeWidth: number | null;
+}
+
+export interface CanvasSnapshotEdge {
+  data: CanvasEdgeData;
+  id: string;
+  markerEnd: CanvasSnapshotEdgeMarker | null;
+  source: string;
+  sourceHandle: string | null;
+  style: CanvasSnapshotEdgeStyle | null;
+  target: string;
+  targetHandle: string | null;
+  type: typeof CANVAS_EDGE_TYPE;
+}
+
+export interface CanvasSnapshot {
+  edges: CanvasSnapshotEdge[];
+  nodes: CanvasSnapshotNode[];
+}
+
 export function getDefaultCanvasNodeColor(): CanvasNodeColor {
   return NODE_COLORS[DEFAULT_CANVAS_NODE_COLOR_INDEX];
 }

@@ -138,9 +138,6 @@ export function CanvasEdge({
         stroke="transparent"
         strokeWidth={EDGE_HIT_STROKE_WIDTH}
         className="react-flow__edge-interaction"
-        onClick={(event) => {
-          event.stopPropagation();
-        }}
         onDoubleClick={(event) => {
           stopInteraction(event);
           setIsEditing(true);

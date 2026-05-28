@@ -13,9 +13,14 @@ import { LoaderCircle, WifiOff } from "lucide-react";
 
 import { BaseCanvas } from "@/components/editor/base-canvas";
 import { Button } from "@/components/ui/button";
+import { type CanvasSaveIndicatorState } from "@/types/canvas";
 
 interface EditorCanvasRoomProps {
+  isAiSidebarOpen?: boolean;
+  onSaveActionChange?: (action: () => void) => void;
+  onSaveStatusChange?: (status: CanvasSaveIndicatorState) => void;
   openTemplatesRequest?: number;
+  projectId: string;
   roomId: string;
 }
 
@@ -55,7 +60,11 @@ function CanvasErrorState({ message, onRetry }: CanvasErrorStateProps) {
 }
 
 export function EditorCanvasRoom({
+  isAiSidebarOpen,
+  onSaveActionChange,
+  onSaveStatusChange,
   openTemplatesRequest,
+  projectId,
   roomId,
 }: EditorCanvasRoomProps) {
   return (
@@ -64,11 +73,19 @@ export function EditorCanvasRoom({
         id={roomId}
         initialPresence={{
           cursor: null,
-          isThinking: false,
+          thinking: false,
         }}
       >
         <ClientSideSuspense fallback={<CanvasLoadingState />}>
-          {() => <CanvasRoomContent openTemplatesRequest={openTemplatesRequest} />}
+          {() => (
+            <CanvasRoomContent
+              isAiSidebarOpen={isAiSidebarOpen}
+              onSaveActionChange={onSaveActionChange}
+              onSaveStatusChange={onSaveStatusChange}
+              openTemplatesRequest={openTemplatesRequest}
+              projectId={projectId}
+            />
+          )}
         </ClientSideSuspense>
       </RoomProvider>
     </LiveblocksProvider>
@@ -76,9 +93,17 @@ export function EditorCanvasRoom({
 }
 
 function CanvasRoomContent({
+  isAiSidebarOpen,
+  onSaveActionChange,
+  onSaveStatusChange,
   openTemplatesRequest,
+  projectId,
 }: {
+  isAiSidebarOpen?: boolean;
+  onSaveActionChange?: (action: () => void) => void;
+  onSaveStatusChange?: (status: CanvasSaveIndicatorState) => void;
   openTemplatesRequest?: number;
+  projectId: string;
 }) {
   const room = useRoom();
   const status = useStatus();
@@ -97,5 +122,13 @@ function CanvasRoomContent({
     return <CanvasErrorState message={errorMessage} onRetry={handleRetry} />;
   }
 
-  return <BaseCanvas openTemplatesRequest={openTemplatesRequest} />;
+  return (
+    <BaseCanvas
+      isAiSidebarOpen={isAiSidebarOpen}
+      onSaveActionChange={onSaveActionChange}
+      onSaveStatusChange={onSaveStatusChange}
+      openTemplatesRequest={openTemplatesRequest}
+      projectId={projectId}
+    />
+  );
 }

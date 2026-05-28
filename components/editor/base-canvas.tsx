@@ -9,6 +9,7 @@ import {
   useRedo,
   useUndo,
 } from "@liveblocks/react";
+import { useUpdateMyPresence } from "@liveblocks/react/suspense";
 import { useLiveblocksFlow } from "@liveblocks/react-flow";
 import {
   Circle,
@@ -40,20 +41,25 @@ import {
 import { CanvasNode as CanvasNodeRenderer } from "@/components/editor/canvas-node";
 import { CanvasControls } from "@/components/editor/canvas-controls";
 import { CanvasEdge as CanvasEdgeRenderer } from "@/components/editor/canvas-edge";
+import { CanvasPresenceOverlay } from "@/components/editor/canvas-presence-overlay";
 import { CanvasShape } from "@/components/editor/canvas-shape";
 import { type CanvasTemplate } from "@/components/editor/starter-templates";
 import { StarterTemplatesModal } from "@/components/editor/starter-templates-modal";
+import { useCanvasAutosave } from "@/hooks/use-canvas-autosave";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
+import { createCanvasSnapshot } from "@/lib/canvas-snapshot";
 import {
   CANVAS_EDGE_TYPE,
   CANVAS_NODE_TYPE,
   NODE_SHAPES,
   SHAPE_DEFAULT_SIZES,
   createCanvasNodeId,
+  type CanvasSaveIndicatorState,
   getDefaultCanvasNodeColor,
   type CanvasEdge,
   type CanvasNode,
   type CanvasNodeShape,
+  type CanvasSnapshot,
   type CanvasShapeDragPayload,
 } from "@/types/canvas";
 
@@ -87,73 +93,6 @@ const DRAG_PREVIEW_COLOR = {
   text: "var(--text-secondary)",
 } as const;
 
-function serializeCanvasNode(node: CanvasNode): JsonObject {
-  return {
-    id: node.id,
-    type: node.type,
-    position: {
-      x: node.position.x,
-      y: node.position.y,
-    },
-    width: node.width ?? null,
-    height: node.height ?? null,
-    data: {
-      label: node.data.label,
-      shape: node.data.shape,
-      color: {
-        fill: node.data.color.fill,
-        text: node.data.color.text,
-      },
-    },
-  };
-}
-
-function serializeCanvasEdge(edge: CanvasEdge): JsonObject {
-  const markerEnd =
-    edge.markerEnd && typeof edge.markerEnd === "object"
-      ? {
-          type:
-            typeof edge.markerEnd.type === "string"
-              ? edge.markerEnd.type
-              : String(edge.markerEnd.type),
-          color: edge.markerEnd.color ?? null,
-          width: edge.markerEnd.width ?? null,
-          height: edge.markerEnd.height ?? null,
-        }
-      : null;
-
-  return {
-    id: edge.id,
-    type: edge.type,
-    source: edge.source,
-    target: edge.target,
-    sourceHandle: edge.sourceHandle ?? null,
-    targetHandle: edge.targetHandle ?? null,
-    data: {
-      label: edge.data?.label ?? "",
-    },
-    markerEnd,
-    style: edge.style
-      ? {
-          stroke:
-            typeof edge.style.stroke === "string" ? edge.style.stroke : null,
-          strokeLinecap:
-            typeof edge.style.strokeLinecap === "string"
-              ? edge.style.strokeLinecap
-              : null,
-          strokeLinejoin:
-            typeof edge.style.strokeLinejoin === "string"
-              ? edge.style.strokeLinejoin
-              : null,
-          strokeWidth:
-            typeof edge.style.strokeWidth === "number"
-              ? edge.style.strokeWidth
-              : null,
-        }
-      : null,
-  };
-}
-
 const shapeIcons: Record<CanvasNodeShape, typeof Minus> = {
   rectangle: Minus,
   diamond: Diamond,
@@ -172,8 +111,22 @@ const edgeTypes: EdgeTypes = {
 };
 
 interface DragPreviewState extends CanvasShapeDragPayload {
+  anchorX: number;
+  anchorY: number;
   x: number;
   y: number;
+}
+
+function isEditableEventTarget(target: EventTarget | null) {
+  if (!(target instanceof HTMLElement)) {
+    return false;
+  }
+
+  return (
+    target instanceof HTMLInputElement ||
+    target instanceof HTMLTextAreaElement ||
+    target.isContentEditable
+  );
 }
 
 interface ShapePanelProps {
@@ -217,19 +170,30 @@ function ShapePanel({
 }
 
 function BaseCanvasFlow({
+  isAiSidebarOpen,
+  onSaveActionChange,
   openTemplatesRequest,
+  onSaveStatusChange,
+  projectId,
 }: {
+  isAiSidebarOpen?: boolean;
+  onSaveActionChange?: (action: () => void) => void;
   openTemplatesRequest?: number;
+  onSaveStatusChange?: (status: CanvasSaveIndicatorState) => void;
+  projectId: string;
 }) {
   const canvasRef = useRef<HTMLDivElement>(null);
   const reactFlow = useReactFlow<CanvasNode, CanvasEdge>();
   const history = useHistory();
   const undo = useUndo();
   const redo = useRedo();
+  const updateMyPresence = useUpdateMyPresence();
   const canUndo = useCanUndo();
   const canRedo = useCanRedo();
   const [dragPreview, setDragPreview] = useState<DragPreviewState | null>(null);
   const [isTemplatesModalOpen, setIsTemplatesModalOpen] = useState(false);
+  const [hasResolvedInitialCanvasLoad, setHasResolvedInitialCanvasLoad] = useState(false);
+  const previousOpenTemplatesRequestRef = useRef(openTemplatesRequest);
   const isDraggingShape = dragPreview !== null;
   const {
     edges,
@@ -246,9 +210,24 @@ function BaseCanvasFlow({
       initial: [],
     },
   });
+  const roomHasCanvasContent = nodes.length > 0 || edges.length > 0;
+  const [treatInitialSnapshotAsSaved, setTreatInitialSnapshotAsSaved] = useState(
+    roomHasCanvasContent,
+  );
+  const { saveStatus, triggerSave } = useCanvasAutosave({
+    enabled: hasResolvedInitialCanvasLoad || roomHasCanvasContent,
+    edges,
+    nodes,
+    projectId,
+    treatInitialSnapshotAsSaved,
+  });
 
-  const importTemplate = useMutation(
-    ({ storage }, template: CanvasTemplate) => {
+  useEffect(() => {
+    onSaveActionChange?.(triggerSave);
+  }, [onSaveActionChange, triggerSave]);
+
+  const replaceCanvasSnapshot = useMutation(
+    ({ storage }, snapshot: CanvasSnapshot) => {
       const flow = storage.get(
         LIVEBLOCKS_FLOW_STORAGE_KEY,
       ) as LiveObject<LsonObject> | undefined;
@@ -262,18 +241,24 @@ function BaseCanvasFlow({
         flow.set(
           "nodes",
           new LiveMap(
-            template.nodes.map((node) => [
+            snapshot.nodes.map((node) => [
               node.id,
-              LiveObject.from(serializeCanvasNode(node), LIVEBLOCKS_NODE_SYNC_CONFIG),
+              LiveObject.from(
+                node as unknown as JsonObject,
+                LIVEBLOCKS_NODE_SYNC_CONFIG,
+              ),
             ]),
           ),
         );
         flow.set(
           "edges",
           new LiveMap(
-            template.edges.map((edge) => [
+            snapshot.edges.map((edge) => [
               edge.id,
-              LiveObject.from(serializeCanvasEdge(edge), LIVEBLOCKS_EDGE_SYNC_CONFIG),
+              LiveObject.from(
+                edge as unknown as JsonObject,
+                LIVEBLOCKS_EDGE_SYNC_CONFIG,
+              ),
             ]),
           ),
         );
@@ -282,6 +267,13 @@ function BaseCanvasFlow({
       }
     },
     [history],
+  );
+
+  const importTemplate = useMutation(
+    (_context, template: CanvasTemplate) => {
+      replaceCanvasSnapshot(createCanvasSnapshot(template.nodes, template.edges));
+    },
+    [replaceCanvasSnapshot],
   );
 
   const addShapeNode = useCallback(
@@ -386,8 +378,126 @@ function BaseCanvasFlow({
       return;
     }
 
-    setIsTemplatesModalOpen(true);
+    if (openTemplatesRequest === previousOpenTemplatesRequestRef.current) {
+      return;
+    }
+
+    previousOpenTemplatesRequestRef.current = openTemplatesRequest;
+
+    const openModalTimeout = window.setTimeout(() => {
+      setIsTemplatesModalOpen(true);
+    }, 0);
+
+    return () => {
+      window.clearTimeout(openModalTimeout);
+    };
   }, [openTemplatesRequest]);
+
+  useEffect(() => {
+    return () => {
+      updateMyPresence({ cursor: null });
+    };
+  }, [updateMyPresence]);
+
+  useEffect(() => {
+    onSaveStatusChange?.(saveStatus);
+  }, [onSaveStatusChange, saveStatus]);
+
+  useEffect(() => {
+    function handleKeyDown(event: KeyboardEvent) {
+      if (
+        (event.key !== "Delete" && event.key !== "Backspace") ||
+        isEditableEventTarget(event.target)
+      ) {
+        return;
+      }
+
+      const selectedNodes = reactFlow
+        .getNodes()
+        .filter((node) => node.selected) as CanvasNode[];
+      const selectedEdges = reactFlow
+        .getEdges()
+        .filter((edge) => edge.selected) as CanvasEdge[];
+
+      if (selectedNodes.length === 0 && selectedEdges.length === 0) {
+        return;
+      }
+
+      event.preventDefault();
+
+      onDelete({
+        nodes: selectedNodes,
+        edges: selectedEdges,
+      });
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [onDelete, reactFlow]);
+
+  useEffect(() => {
+    if (hasResolvedInitialCanvasLoad) {
+      return;
+    }
+
+    if (roomHasCanvasContent) {
+      return;
+    }
+
+    let isCancelled = false;
+
+    async function loadSavedCanvas() {
+      try {
+        const response = await fetch(`/api/projects/${projectId}/canvas`, {
+          cache: "no-store",
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to load the saved canvas state.");
+        }
+
+        const payload = (await response.json()) as {
+          data: {
+            canvas: CanvasSnapshot | null;
+          };
+        };
+
+        if (isCancelled || !payload.data.canvas) {
+          return;
+        }
+
+        setTreatInitialSnapshotAsSaved(true);
+        replaceCanvasSnapshot(payload.data.canvas);
+
+        window.requestAnimationFrame(() => {
+          void reactFlow.fitView({ duration: VIEWPORT_ANIMATION_DURATION_MS });
+        });
+      } catch (error) {
+        if (!isCancelled) {
+          console.error("Saved canvas bootstrap failed.", error);
+        }
+      } finally {
+        if (!isCancelled) {
+          setHasResolvedInitialCanvasLoad(true);
+        }
+      }
+    }
+
+    void loadSavedCanvas();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [
+    hasResolvedInitialCanvasLoad,
+    projectId,
+    reactFlow,
+    roomHasCanvasContent,
+    replaceCanvasSnapshot,
+  ]);
 
   const handleShapeDragStart = useCallback(
     (event: React.DragEvent<HTMLButtonElement>, shape: CanvasNodeShape) => {
@@ -410,6 +520,8 @@ function BaseCanvasFlow({
       event.dataTransfer.setDragImage(dragImage, 0, 0);
 
       setDragPreview({
+        anchorX: size.width / 2,
+        anchorY: size.height / 2,
         ...payload,
         x: event.clientX,
         y: event.clientY,
@@ -515,14 +627,18 @@ function BaseCanvasFlow({
       }
 
       const position = reactFlow.screenToFlowPosition({
-        x: event.clientX,
-        y: event.clientY,
+        x:
+          event.clientX - (dragPreview?.anchorX ?? payload.width / 2) + payload.width / 2,
+        y:
+          event.clientY -
+          (dragPreview?.anchorY ?? payload.height / 2) +
+          payload.height / 2,
       });
 
       addShapeNode(payload.shape, position);
       setDragPreview(null);
     },
-    [addShapeNode, reactFlow],
+    [addShapeNode, dragPreview, reactFlow],
   );
 
   const handleImportTemplate = useCallback(
@@ -535,6 +651,28 @@ function BaseCanvasFlow({
     },
     [importTemplate, reactFlow],
   );
+
+  const handleCanvasMouseMove = useCallback(
+    (event: React.MouseEvent<HTMLDivElement>) => {
+      const bounds = canvasRef.current?.getBoundingClientRect();
+
+      if (!bounds) {
+        return;
+      }
+
+      updateMyPresence({
+        cursor: {
+          x: event.clientX - bounds.left,
+          y: event.clientY - bounds.top,
+        },
+      });
+    },
+    [updateMyPresence],
+  );
+
+  const handleCanvasMouseLeave = useCallback(() => {
+    updateMyPresence({ cursor: null });
+  }, [updateMyPresence]);
 
   return (
     <div
@@ -550,6 +688,8 @@ function BaseCanvasFlow({
         onDelete={onDelete}
         onEdgesChange={onEdgesChange}
         onNodesChange={onNodesChange}
+        onMouseMove={handleCanvasMouseMove}
+        onMouseLeave={handleCanvasMouseLeave}
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
         connectionMode={ConnectionMode.Loose}
@@ -572,7 +712,7 @@ function BaseCanvasFlow({
           },
           type: CANVAS_EDGE_TYPE,
         }}
-        fitView
+        deleteKeyCode={null}
         minZoom={0.4}
         className="bg-base"
         proOptions={{ hideAttribution: true }}
@@ -593,13 +733,14 @@ function BaseCanvasFlow({
           variant={BackgroundVariant.Dots}
         />
       </ReactFlow>
+      <CanvasPresenceOverlay showPresenceBadge={!isAiSidebarOpen} />
       {dragPreview ? (
         <div
           className="pointer-events-none fixed z-30"
           style={{
             height: dragPreview.height,
-            left: dragPreview.x - dragPreview.width / 2,
-            top: dragPreview.y - dragPreview.height / 2,
+            left: dragPreview.x - dragPreview.anchorX,
+            top: dragPreview.y - dragPreview.anchorY,
             width: dragPreview.width,
           }}
         >
@@ -634,14 +775,28 @@ function BaseCanvasFlow({
 }
 
 export function BaseCanvas({
+  isAiSidebarOpen,
+  onSaveActionChange,
   openTemplatesRequest,
+  onSaveStatusChange,
+  projectId,
 }: {
+  isAiSidebarOpen?: boolean;
+  onSaveActionChange?: (action: () => void) => void;
   openTemplatesRequest?: number;
+  onSaveStatusChange?: (status: CanvasSaveIndicatorState) => void;
+  projectId: string;
 }) {
   return (
     <ReactFlowProvider>
       <div className="h-full w-full overflow-hidden rounded-[inherit]">
-        <BaseCanvasFlow openTemplatesRequest={openTemplatesRequest} />
+        <BaseCanvasFlow
+          isAiSidebarOpen={isAiSidebarOpen}
+          onSaveActionChange={onSaveActionChange}
+          openTemplatesRequest={openTemplatesRequest}
+          onSaveStatusChange={onSaveStatusChange}
+          projectId={projectId}
+        />
       </div>
     </ReactFlowProvider>
   );

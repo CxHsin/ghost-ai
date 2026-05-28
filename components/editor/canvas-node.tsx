@@ -73,8 +73,10 @@ export function CanvasNode({ id, data, selected }: NodeProps<CanvasNode>) {
   const reactFlow = useReactFlow<CanvasNode, CanvasEdge>();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [hoveredColorKey, setHoveredColorKey] = useState<string | null>(null);
+  const [isHovered, setIsHovered] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const canStartConnection = selected && !isEditing;
+  const showHandles = (selected || isHovered) && !isEditing;
+  const canStartConnection = (selected || isHovered) && !isEditing;
   const canEndConnection = !isEditing;
   const minimumSize = SHAPE_MIN_SIZES[data.shape];
   const shapePadding = getCanvasShapePadding(data.shape);
@@ -174,7 +176,11 @@ export function CanvasNode({ id, data, selected }: NodeProps<CanvasNode>) {
   );
 
   return (
-    <div className="group relative h-full w-full">
+    <div
+      className="group relative h-full w-full"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
       <NodeToolbar
         isVisible={selected}
         offset={18}
@@ -270,8 +276,8 @@ export function CanvasNode({ id, data, selected }: NodeProps<CanvasNode>) {
             style={{
               ...getHandleInset(position),
               pointerEvents: isEditing ? "none" : "auto",
-              opacity: selected ? 1 : 0,
-              transform: selected ? "scale(1)" : "scale(0.9)",
+              opacity: showHandles ? 1 : 0,
+              transform: showHandles ? "scale(1)" : "scale(0.9)",
               zIndex: 20,
             }}
             isConnectable={!isEditing}
@@ -286,8 +292,8 @@ export function CanvasNode({ id, data, selected }: NodeProps<CanvasNode>) {
             style={{
               ...getHandleInset(position),
               pointerEvents: isEditing ? "none" : "auto",
-              opacity: selected ? 1 : 0,
-              transform: selected ? "scale(1)" : "scale(0.9)",
+              opacity: showHandles ? 1 : 0,
+              transform: showHandles ? "scale(1)" : "scale(0.9)",
               zIndex: 20,
             }}
             isConnectable={!isEditing}

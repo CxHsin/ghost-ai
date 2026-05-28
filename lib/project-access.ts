@@ -12,6 +12,12 @@ const WORKSPACE_PROJECT_SELECT = {
   ownerId: true,
 } satisfies Prisma.ProjectSelect;
 
+const PROJECT_CANVAS_ACCESS_SELECT = {
+  id: true,
+  ownerId: true,
+  canvasJsonPath: true,
+} satisfies Prisma.ProjectSelect;
+
 interface ProjectIdentity {
   avatarUrl: string | null;
   displayName: string | null;
@@ -40,6 +46,38 @@ export async function getAccessibleProject(
   projectId: string,
   identity: ProjectIdentity,
 ) {
+  const accessWhere = buildProjectAccessWhere(projectId, identity);
+
+  if (!accessWhere) {
+    return null;
+  }
+
+  return prisma.project.findFirst({
+    where: accessWhere,
+    select: WORKSPACE_PROJECT_SELECT,
+  });
+}
+
+export async function getAccessibleProjectCanvasRecord(
+  projectId: string,
+  identity: ProjectIdentity,
+) {
+  const accessWhere = buildProjectAccessWhere(projectId, identity);
+
+  if (!accessWhere) {
+    return null;
+  }
+
+  return prisma.project.findFirst({
+    where: accessWhere,
+    select: PROJECT_CANVAS_ACCESS_SELECT,
+  });
+}
+
+function buildProjectAccessWhere(
+  projectId: string,
+  identity: ProjectIdentity,
+) {
   if (!identity.userId) {
     return null;
   }
@@ -60,13 +98,10 @@ export async function getAccessibleProject(
     });
   }
 
-  return prisma.project.findFirst({
-    where: {
-      id: projectId,
-      OR: accessConditions,
-    },
-    select: WORKSPACE_PROJECT_SELECT,
-  });
+  return {
+    id: projectId,
+    OR: accessConditions,
+  } satisfies Prisma.ProjectWhereInput;
 }
 
 export type { ProjectIdentity };
