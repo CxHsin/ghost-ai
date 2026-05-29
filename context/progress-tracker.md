@@ -324,10 +324,11 @@ Update this file whenever the current phase, active feature, or implementation s
 - Expanded the AI workspace tab pills a bit further by reducing the remaining rail gutter to near-zero and slightly increasing horizontal pill padding, so the active segment fills its half-width track more completely.
 - Updated the project sidebar tab rail classes to Tailwind v4's suffix `!` important syntax so the pill-style overrides no longer rely on legacy prefix notation.
 - Hardened `useCanvasAutosave` against overlapping writes by aborting any previous in-flight save before sending a newer snapshot, reducing the chance that older canvas data can finish later and overwrite newer edits on the server.
+- Fixed deployment Prisma client resolution by adding `postinstall` and `prebuild` `prisma generate` scripts, ensuring fresh build environments regenerate `app/generated/prisma` before `next build`.
 
 ## In Progress
 
-- Waiting for the next feature unit.
+- Waiting for the next feature unit after deployment build repair verification.
 
 ## Next Up
 
