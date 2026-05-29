@@ -1,6 +1,6 @@
-# Ghost AI
+# Ghost AI Learning
 
-Ghost AI is a real-time collaborative system design workspace built with Next.js.
+Ghost AI Learning is a real-time collaborative system design workspace built with Next.js.
 
 ## Learning Note
 
@@ -9,6 +9,8 @@ This project was built step by step by following the author of this YouTube vide
 - [Build an AI System Design SaaS with Next.js](https://www.youtube.com/watch?v=14RP8liACqo&list=WL&index=1&t=12797s)
 
 The implementation in this repository is part of my hands-on learning process, following the author's project flow and rebuilding the product feature by feature.
+
+To clearly distinguish this repository from the original author's project, this learning version is named `Ghost AI Learning`.
 
 ## Trigger.dev
 

@@ -12,6 +12,7 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Completed
 
+- Renamed the repository-level project identity to `ghost-ai-learning` in `package.json` and updated `README.md` to present this codebase as `Ghost AI Learning`, keeping it clearly distinct from the original author's project while preserving the in-app `Ghost AI` product wording for now.
 - Updated `README.md` to describe the project at a high level and explicitly credit that this repository was built step by step by following the linked YouTube author's project as a learning exercise.
 - Cleaned up the default Next.js starter boilerplate in `app/` and `public/`.
 - Installed and configured `shadcn/ui` with the `radix-nova` preset plus `lucide-react`.
