@@ -87,7 +87,7 @@ export async function readSpecMarkdownBlob(filePath: string) {
     useCache: false,
   });
 
-  if (!blob || blob.statusCode !== 200) {
+  if (!blob) {
     return {
       kind: "not_found",
     } as const;

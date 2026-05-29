@@ -2,7 +2,10 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { createCanvasSnapshot } from "@/lib/canvas-snapshot";
+import {
+  createCanvasSnapshot,
+  createStableCanvasSnapshotSignature,
+} from "@/lib/canvas-snapshot";
 import {
   type CanvasEdge,
   type CanvasSaveIndicatorState,
@@ -38,12 +41,8 @@ async function readErrorMessage(response: Response, fallbackMessage: string) {
 
 function createSnapshotSignature(nodes: CanvasNode[], edges: CanvasEdge[]) {
   const snapshot = createCanvasSnapshot(nodes, edges);
-  const stableSnapshot = {
-    nodes: [...snapshot.nodes].sort((left, right) => left.id.localeCompare(right.id)),
-    edges: [...snapshot.edges].sort((left, right) => left.id.localeCompare(right.id)),
-  };
 
-  return JSON.stringify(stableSnapshot);
+  return createStableCanvasSnapshotSignature(snapshot);
 }
 
 export function useCanvasAutosave({

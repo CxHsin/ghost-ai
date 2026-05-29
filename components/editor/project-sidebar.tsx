@@ -51,15 +51,15 @@ function ProjectList({
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-2.5">
       {projects.map((project) => (
         <div
           key={project.id}
           className={cn(
-            "rounded-2xl border px-4 py-4 transition-colors",
+            "rounded-2xl border px-4 py-3.5 transition-[background-color,border-color,box-shadow]",
             project.id === activeProjectId
-              ? "border-brand bg-gradient-to-r from-brand-dim to-brand-dim/30 shadow-[0_0_0_1px_rgba(0,200,212,0.08)]"
-              : "border-surface-border bg-base/60 hover:bg-elevated/80",
+              ? "border-brand/20 bg-gradient-to-r from-brand-dim via-brand-dim to-brand-dim/30 shadow-[inset_0_1px_0_rgba(255,255,255,0.03),0_0_0_1px_rgba(0,200,212,0.06)]"
+              : "border-transparent bg-transparent hover:bg-elevated/45",
           )}
         >
           <div className="flex items-start justify-between gap-3">
@@ -71,14 +71,24 @@ function ProjectList({
                 <span
                   className={cn(
                     "mt-0.5 size-2 shrink-0 rounded-full",
-                    project.id === activeProjectId ? "bg-brand" : "bg-copy-faint",
+                    project.id === activeProjectId ? "bg-brand" : "bg-copy-faint/70",
                   )}
                 />
-                <p className="truncate text-sm font-medium text-copy-primary">
+                <p
+                  className={cn(
+                    "truncate text-sm font-medium",
+                    project.id === activeProjectId ? "text-copy-primary" : "text-copy-secondary",
+                  )}
+                >
                   {project.name}
                 </p>
               </div>
-              <p className="mt-1 truncate font-mono text-xs text-copy-muted">
+              <p
+                className={cn(
+                  "mt-1 truncate font-mono text-xs",
+                  project.id === activeProjectId ? "text-copy-muted" : "text-copy-faint",
+                )}
+              >
                 {project.roomId}
               </p>
             </Link>
@@ -135,18 +145,21 @@ export function ProjectSidebar({
 
       <aside
         className={[
-          "pointer-events-none absolute inset-y-0 left-0 z-20 w-full max-w-[22rem] p-3 transition duration-200 ease-out sm:max-w-[23rem] sm:p-3.5",
+          "pointer-events-none absolute inset-y-0 left-0 z-20 w-full max-w-[22rem] p-2.5 transition duration-200 ease-out sm:max-w-[21.5rem] sm:p-3",
           isOpen ? "translate-x-0" : "-translate-x-full",
         ].join(" ")}
         aria-hidden={!isOpen}
         inert={!isOpen}
       >
-        <div className="pointer-events-auto flex h-full flex-col rounded-[2rem] border border-surface-border bg-surface/95 shadow-xl shadow-black/25 backdrop-blur-sm">
-          <div className="flex items-center justify-between border-b border-surface-border px-5 py-4">
-            <h2 className="text-xl font-semibold tracking-tight text-copy-primary">Projects</h2>
+        <div className="pointer-events-auto flex h-full flex-col overflow-hidden rounded-[1.75rem] border border-surface-border bg-surface/96 shadow-[0_24px_64px_rgba(0,0,0,0.42)] backdrop-blur-sm">
+          <div className="flex min-h-[4.9rem] items-start justify-between gap-4 border-b border-surface-border px-4 py-4">
+            <div className="min-w-0 pt-0.5">
+              <h2 className="text-lg font-medium tracking-tight text-copy-primary">Projects</h2>
+            </div>
             <Button
               variant="ghost"
               size="icon-sm"
+              className="mt-0.5 rounded-full border border-surface-border bg-subtle text-copy-secondary shadow-none hover:bg-elevated hover:text-copy-primary"
               onClick={onClose}
               aria-label="Close projects sidebar"
             >
@@ -156,27 +169,27 @@ export function ProjectSidebar({
 
           <Tabs
             defaultValue="my-projects"
-            className="flex min-h-0 flex-1 flex-col px-4 py-4"
+            className="flex min-h-0 flex-1 flex-col px-3 py-3.5"
           >
             <TabsList
-              variant="line"
-              className="h-auto w-full gap-2 rounded-2xl border border-surface-border bg-subtle/80 p-1"
+              variant="default"
+              className="h-auto w-full gap-1 !rounded-full border border-transparent bg-subtle/80 p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.02)]"
             >
               <TabsTrigger
                 value="my-projects"
-                className="rounded-xl px-3 py-2 text-sm text-copy-secondary data-active:bg-base data-active:text-copy-primary"
+                className="!h-9 min-w-0 !rounded-full !border border-transparent !bg-transparent px-4 py-0 text-sm font-semibold text-copy-secondary !shadow-none transition-[background-color,border-color,color,box-shadow] after:hidden hover:text-copy-primary data-[state=active]:!border-transparent data-[state=active]:!bg-base data-[state=active]:!text-copy-primary data-[state=active]:shadow-[inset_0_1px_0_rgba(255,255,255,0.03),0_6px_14px_rgba(0,0,0,0.26)] data-[state=active]:after:hidden"
               >
                 My Projects
               </TabsTrigger>
               <TabsTrigger
                 value="shared"
-                className="rounded-xl px-3 py-2 text-sm text-copy-secondary data-active:bg-base data-active:text-copy-primary"
+                className="!h-9 min-w-0 !rounded-full !border border-transparent !bg-transparent px-4 py-0 text-sm font-semibold text-copy-secondary !shadow-none transition-[background-color,border-color,color,box-shadow] after:hidden hover:text-copy-primary data-[state=active]:!border-transparent data-[state=active]:!bg-base data-[state=active]:!text-copy-primary data-[state=active]:shadow-[inset_0_1px_0_rgba(255,255,255,0.03),0_6px_14px_rgba(0,0,0,0.26)] data-[state=active]:after:hidden"
               >
                 Shared
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="my-projects" className="mt-4 min-h-0 flex-1">
+            <TabsContent value="my-projects" className="mt-3 min-h-0 flex-1">
               <ProjectList
                 activeProjectId={activeProjectId}
                 projects={ownedProjects}
@@ -186,7 +199,7 @@ export function ProjectSidebar({
               />
             </TabsContent>
 
-            <TabsContent value="shared" className="mt-4 min-h-0 flex-1">
+            <TabsContent value="shared" className="mt-3 min-h-0 flex-1">
               <ProjectList
                 activeProjectId={activeProjectId}
                 projects={sharedProjects}
@@ -197,7 +210,7 @@ export function ProjectSidebar({
             </TabsContent>
           </Tabs>
 
-          <div className="border-t border-surface-border px-5 py-4">
+          <div className="border-t border-surface-border px-4 py-4">
             <Button className="h-10 w-full justify-center rounded-2xl text-sm" onClick={onCreateProject}>
               <Plus />
               New Project

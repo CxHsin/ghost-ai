@@ -293,6 +293,34 @@ Update this file whenever the current phase, active feature, or implementation s
 - Threaded the current Liveblocks canvas snapshot from `BaseCanvas` through the workspace shell into the Specs tab so spec generation uses the latest collaborative nodes and edges without adding global state.
 - Improved Specs tab failure messaging so metadata load errors include the backend status when no structured JSON error is available.
 - Re-verified the Specs tab generation fix with targeted ESLint, `npm run lint`, and `npm run build`.
+- Shared the stable canvas snapshot signature helper between autosave and `BaseCanvas` so snapshot callbacks ignore harmless node and edge ordering changes.
+- Updated spec Markdown blob reads to treat a missing Vercel Blob `get()` result as the not-found signal for the non-conditional download path.
+- Removed the redundant non-unique `TaskRun.runId` Prisma index and added a migration to drop the duplicate database index now covered by the existing unique constraint.
+- Refined the project sidebar `My Projects / Shared` switcher to use more rounded pill tabs with a darker inset track and stronger active-state contrast, matching the approved rounded reference more closely.
+- Restyled the full left project sidebar to better match the new reference, tightening the panel proportions and spacing while updating the project list rows so the selected item uses a softer teal pill highlight and inactive rows sit flatter against the dark surface.
+- Updated the project sidebar segmented control again so the `My Projects / Shared` rail and both triggers now use fully pill-shaped rounded ends instead of softer card corners.
+- Adjusted the project sidebar segmented control to match the newer rounded reference more closely, replacing the flatter underlined look with a softer pill rail and elevated active segment.
+- Removed the inherited line-tab underline styling from the project sidebar switcher so its active state now renders as a true pill segment instead of a pill-plus-underline hybrid.
+- Fixed the project sidebar tab-state styling to target the actual Radix `data-state="active"` attribute, allowing the rounded active pill treatment to render instead of falling back to the default flat line-tab appearance.
+- Switched the project sidebar segmented control off the `line` tabs variant so the outer rail can keep a true rounded-pill border instead of inheriting the rectangular line-tab container reset.
+- Refined the project sidebar switcher again to match the compact pill-tab reference more closely, tightening the rail padding and trigger height while keeping the existing color palette unchanged.
+- Matched the AI workspace `AI Architect / Specs` switcher to the same compact pill-tab treatment as the project sidebar, while preserving the AI panel's existing dark/indigo color balance.
+- Updated the active `AI Architect` pill fill in the AI workspace switcher to use the existing purple AI accent token instead of the neutral dark fill.
+- Tightened the AI workspace switcher so tab pills clip cleanly inside the rail, removed the residual trigger underline pseudo-element, and gave the inactive `Specs` pill the same dark filled button treatment as the active-side layout.
+- Softened the AI workspace switcher styling again by removing the distracting bright outline effect around the active pill and giving the outer rail a cleaner dark capsule treatment.
+- Unified both AI workspace tab buttons so inactive pills now share the same dark filled base and either active tab uses the same purple fill treatment, while also strengthening the row's lower divider line for clearer separation.
+- Aligned the left and right workspace sidebars on the same panel chrome system by matching outer insets, inner card radius, header padding, close-button styling, and tab-row/content spacing without changing either sidebar's color palette.
+- Tightened cross-sidebar header alignment further by giving both panels the same header minimum height and matching title-block plus close-button top offsets, so the titles and close controls sit on the same visual baseline.
+- Removed the extra divider from directly beneath the AI workspace pill switcher and moved the subtle top separation onto the tab content area instead, so the button row no longer looks underlined.
+- Reworked the active AI workspace pill edge treatment to use the trigger's own border instead of a clipped outer highlight, so the selected tab capsule renders as a complete shape.
+- Added a dedicated dark backing plate around the AI workspace tab rail so the segmented buttons sit on a distinct layered background instead of directly on the panel surface.
+- Fixed the AI workspace active pill so its rounded edge stays clipped inside the new backing plate and inner rail instead of spilling past the background capsule.
+- Nudged the AI workspace tab pills upward by one pixel inside their shared rail so the buttons sit fully nested within the rounded backing frame instead of hanging low.
+- Refined the AI workspace pill fit again by slightly reducing trigger height, tightening the rail padding, and shifting the active outline to an inset edge so the selected tab sits more fully inside the rounded track and reads as a complete capsule.
+- Rebuilt the AI workspace tab rail toward the flatter reference style: a slimmer rounded backing plate with fully inset pill buttons, removing the extra active outline treatment so the selected tab displays as a clean complete capsule inside the outer frame.
+- Simplified the AI workspace tab rail from a two-layer track into a single effective alignment surface so the inset pills line up with the visible outer capsule instead of appearing offset inside a second nested frame.
+- Tightened the AI workspace segmented control spacing again so each tab fills more of its half-width track, reducing the center gutter and outer padding to better match the flatter reference segmentation.
+- Expanded the AI workspace tab pills a bit further by reducing the remaining rail gutter to near-zero and slightly increasing horizontal pill padding, so the active segment fills its half-width track more completely.
 
 ## In Progress
 
@@ -300,7 +328,7 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Next Up
 
-- Wire frontend spec generation, spec persistence, or spec review/download behavior when the next relevant feature spec is selected.
+- Start the next selected feature unit and track its implementation milestones here.
 
 ## Open Questions
 

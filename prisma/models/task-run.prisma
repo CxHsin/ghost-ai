@@ -6,6 +6,5 @@ model TaskRun {
   createdAt DateTime @default(now())
   project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
-  @@index([runId])
   @@index([userId, projectId])
 }

@@ -466,20 +466,20 @@ export function AiSidebar({
   return (
     <aside
       className={cn(
-        "pointer-events-none absolute inset-y-4 right-4 z-10 hidden w-[21.5rem] overflow-hidden rounded-3xl border border-surface-border bg-base/95 shadow-2xl shadow-black/25 backdrop-blur-sm transition-all duration-300 ease-out lg:flex lg:flex-col",
-        isOpen ? "translate-x-0 opacity-100" : "translate-x-[calc(100%+1rem)] opacity-0",
+        "pointer-events-none absolute inset-y-0 right-0 z-10 hidden w-full max-w-[22rem] p-2.5 transition-all duration-300 ease-out lg:flex lg:flex-col sm:max-w-[21.5rem] sm:p-3",
+        isOpen ? "translate-x-0 opacity-100" : "translate-x-full opacity-0",
       )}
       aria-hidden={!isOpen}
       inert={!isOpen}
     >
       <div
         className={cn(
-          "pointer-events-auto flex h-full flex-col transition-transform duration-300 ease-out",
+          "pointer-events-auto flex h-full flex-col overflow-hidden rounded-[1.75rem] border border-surface-border bg-base/95 shadow-[0_24px_64px_rgba(0,0,0,0.42)] backdrop-blur-sm transition-transform duration-300 ease-out",
           isOpen ? "translate-x-0" : "translate-x-6",
         )}
       >
-        <div className="flex items-start justify-between gap-4 border-b border-surface-border px-5 py-4">
-          <div className="min-w-0">
+        <div className="flex min-h-[4.9rem] items-start justify-between gap-4 border-b border-surface-border px-4 py-4">
+          <div className="min-w-0 pt-0.5">
             <div className="flex items-center gap-2">
               <div className="flex size-8 items-center justify-center rounded-xl bg-ai/16 text-ai-text">
                 <Bot className="h-4 w-4" />
@@ -505,9 +505,9 @@ export function AiSidebar({
 
           <Button
             variant="ghost"
-            size="icon"
+            size="icon-sm"
             type="button"
-            className="shrink-0 rounded-full border border-surface-border bg-subtle text-copy-secondary shadow-none hover:bg-elevated hover:text-copy-primary"
+            className="mt-0.5 shrink-0 rounded-full border border-surface-border bg-subtle text-copy-secondary shadow-none hover:bg-elevated hover:text-copy-primary"
             onClick={onClose}
             aria-label="Close AI workspace"
           >
@@ -516,26 +516,28 @@ export function AiSidebar({
         </div>
 
         <Tabs defaultValue="architect" className="flex min-h-0 flex-1 flex-col gap-0">
-          <div className="border-b border-surface-border px-5 py-3">
-            <TabsList className="grid h-14 w-full grid-cols-2 rounded-[1.125rem] border border-surface-border bg-base/70 p-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.02)]">
-              <TabsTrigger
-                value="architect"
-                className="!h-full rounded-[0.95rem] !border border-transparent !bg-transparent px-3.5 py-0 text-[0.8rem] font-semibold text-copy-muted !shadow-none transition-[background-color,border-color,color] duration-150 hover:text-copy-secondary data-[state=active]:!border-surface-border-subtle data-[state=active]:!bg-elevated data-[state=active]:!text-copy-primary data-[state=active]:shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]"
-              >
-                <Sparkles className="h-3.5 w-3.5" />
-                AI Architect
-              </TabsTrigger>
-              <TabsTrigger
-                value="specs"
-                className="!h-full rounded-[0.95rem] !border border-transparent !bg-transparent px-3.5 py-0 text-[0.8rem] font-semibold text-copy-muted !shadow-none transition-[background-color,border-color,color] duration-150 hover:text-copy-secondary data-[state=active]:!border-surface-border-subtle data-[state=active]:!bg-elevated data-[state=active]:!text-copy-primary data-[state=active]:shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]"
-              >
-                <FileText className="h-3.5 w-3.5" />
-                Specs
-              </TabsTrigger>
-            </TabsList>
+          <div className="px-4 py-3.5">
+            <div className="rounded-[1.35rem] border border-surface-border/55 bg-surface/55 p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.02),0_10px_24px_rgba(0,0,0,0.2)]">
+              <TabsList className="grid h-auto w-full grid-cols-2 gap-px !rounded-[1.05rem] bg-base/90 p-px">
+                <TabsTrigger
+                  value="architect"
+                className="!h-8 min-w-0 !rounded-full !border-0 !bg-transparent px-4.5 py-0 text-[0.8rem] font-semibold text-copy-muted !shadow-none transition-[background-color,color,box-shadow] duration-150 after:content-none hover:bg-surface/70 hover:text-copy-secondary data-[state=active]:!bg-ai data-[state=active]:!text-copy-primary data-[state=active]:shadow-[inset_0_1px_0_rgba(255,255,255,0.1),0_4px_10px_rgba(0,0,0,0.18)] data-[state=active]:after:content-none"
+                >
+                  <Sparkles className="h-3.5 w-3.5" />
+                  AI Architect
+                </TabsTrigger>
+                <TabsTrigger
+                  value="specs"
+                className="!h-8 min-w-0 !rounded-full !border-0 !bg-transparent px-4.5 py-0 text-[0.8rem] font-semibold text-copy-muted !shadow-none transition-[background-color,color,box-shadow] duration-150 after:content-none hover:bg-surface/70 hover:text-copy-secondary data-[state=active]:!bg-ai data-[state=active]:!text-copy-primary data-[state=active]:shadow-[inset_0_1px_0_rgba(255,255,255,0.1),0_4px_10px_rgba(0,0,0,0.18)] data-[state=active]:after:content-none"
+                >
+                  <FileText className="h-3.5 w-3.5" />
+                  Specs
+                </TabsTrigger>
+              </TabsList>
+            </div>
           </div>
 
-          <TabsContent value="architect" className="mt-0 flex min-h-0 flex-1 flex-col px-5 py-4">
+          <TabsContent value="architect" className="mt-0 flex min-h-0 flex-1 flex-col border-t border-surface-border-subtle px-4 py-4">
             <ScrollArea className="min-h-0 flex-1 pr-2">
               {chatMessages.length === 0 ? (
                 <div className="flex h-full min-h-[18rem] flex-col items-center justify-center rounded-3xl border border-dashed border-surface-border bg-surface/60 px-5 py-8 text-center">
@@ -677,7 +679,7 @@ export function AiSidebar({
             </div>
           </TabsContent>
 
-          <TabsContent value="specs" className="mt-0 flex min-h-0 flex-1 flex-col px-5 py-4">
+          <TabsContent value="specs" className="mt-0 flex min-h-0 flex-1 flex-col border-t border-surface-border-subtle px-4 py-4">
             <SpecsPanel
               canvasSnapshot={canvasSnapshot}
               chatHistory={specChatHistory}

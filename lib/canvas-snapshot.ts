@@ -196,6 +196,13 @@ export function createCanvasSnapshot(
   };
 }
 
+export function createStableCanvasSnapshotSignature(snapshot: CanvasSnapshot) {
+  return JSON.stringify({
+    nodes: [...snapshot.nodes].sort((left, right) => left.id.localeCompare(right.id)),
+    edges: [...snapshot.edges].sort((left, right) => left.id.localeCompare(right.id)),
+  });
+}
+
 export function parseCanvasSnapshot(payload: unknown): CanvasSnapshot | null {
   if (!isRecord(payload)) {
     return null;

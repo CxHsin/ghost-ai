@@ -47,7 +47,10 @@ import { type CanvasTemplate } from "@/components/editor/starter-templates";
 import { StarterTemplatesModal } from "@/components/editor/starter-templates-modal";
 import { useCanvasAutosave } from "@/hooks/use-canvas-autosave";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
-import { createCanvasSnapshot } from "@/lib/canvas-snapshot";
+import {
+  createCanvasSnapshot,
+  createStableCanvasSnapshotSignature,
+} from "@/lib/canvas-snapshot";
 import {
   CANVAS_EDGE_TYPE,
   CANVAS_NODE_TYPE,
@@ -238,7 +241,7 @@ function BaseCanvasFlow({
       return;
     }
 
-    const snapshotSignature = JSON.stringify(canvasSnapshot);
+    const snapshotSignature = createStableCanvasSnapshotSignature(canvasSnapshot);
 
     if (snapshotSignature === previousSnapshotSignatureRef.current) {
       return;
