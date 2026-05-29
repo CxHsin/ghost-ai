@@ -321,6 +321,7 @@ Update this file whenever the current phase, active feature, or implementation s
 - Simplified the AI workspace tab rail from a two-layer track into a single effective alignment surface so the inset pills line up with the visible outer capsule instead of appearing offset inside a second nested frame.
 - Tightened the AI workspace segmented control spacing again so each tab fills more of its half-width track, reducing the center gutter and outer padding to better match the flatter reference segmentation.
 - Expanded the AI workspace tab pills a bit further by reducing the remaining rail gutter to near-zero and slightly increasing horizontal pill padding, so the active segment fills its half-width track more completely.
+- Updated the project sidebar tab rail classes to Tailwind v4's suffix `!` important syntax so the pill-style overrides no longer rely on legacy prefix notation.
 
 ## In Progress
 

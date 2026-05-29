@@ -173,17 +173,17 @@ export function ProjectSidebar({
           >
             <TabsList
               variant="default"
-              className="h-auto w-full gap-1 !rounded-full border border-transparent bg-subtle/80 p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.02)]"
+              className="h-auto w-full gap-1 rounded-full! border border-transparent bg-subtle/80 p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.02)]"
             >
               <TabsTrigger
                 value="my-projects"
-                className="!h-9 min-w-0 !rounded-full !border border-transparent !bg-transparent px-4 py-0 text-sm font-semibold text-copy-secondary !shadow-none transition-[background-color,border-color,color,box-shadow] after:hidden hover:text-copy-primary data-[state=active]:!border-transparent data-[state=active]:!bg-base data-[state=active]:!text-copy-primary data-[state=active]:shadow-[inset_0_1px_0_rgba(255,255,255,0.03),0_6px_14px_rgba(0,0,0,0.26)] data-[state=active]:after:hidden"
+                className="h-9! min-w-0 rounded-full! border! border-transparent bg-transparent! px-4 py-0 text-sm font-semibold text-copy-secondary shadow-none! transition-[background-color,border-color,color,box-shadow] after:hidden hover:text-copy-primary data-[state=active]:border-transparent! data-[state=active]:bg-base! data-[state=active]:text-copy-primary! data-[state=active]:shadow-[inset_0_1px_0_rgba(255,255,255,0.03),0_6px_14px_rgba(0,0,0,0.26)] data-[state=active]:after:hidden"
               >
                 My Projects
               </TabsTrigger>
               <TabsTrigger
                 value="shared"
-                className="!h-9 min-w-0 !rounded-full !border border-transparent !bg-transparent px-4 py-0 text-sm font-semibold text-copy-secondary !shadow-none transition-[background-color,border-color,color,box-shadow] after:hidden hover:text-copy-primary data-[state=active]:!border-transparent data-[state=active]:!bg-base data-[state=active]:!text-copy-primary data-[state=active]:shadow-[inset_0_1px_0_rgba(255,255,255,0.03),0_6px_14px_rgba(0,0,0,0.26)] data-[state=active]:after:hidden"
+                className="h-9! min-w-0 rounded-full! border! border-transparent bg-transparent! px-4 py-0 text-sm font-semibold text-copy-secondary shadow-none! transition-[background-color,border-color,color,box-shadow] after:hidden hover:text-copy-primary data-[state=active]:border-transparent! data-[state=active]:bg-base! data-[state=active]:text-copy-primary! data-[state=active]:shadow-[inset_0_1px_0_rgba(255,255,255,0.03),0_6px_14px_rgba(0,0,0,0.26)] data-[state=active]:after:hidden"
               >
                 Shared
               </TabsTrigger>
