@@ -1,4 +1,14 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Ghost AI
+
+Ghost AI is a real-time collaborative system design workspace built with Next.js.
+
+## Learning Note
+
+This project was built step by step by following the author of this YouTube video:
+
+- [Build an AI System Design SaaS with Next.js](https://www.youtube.com/watch?v=14RP8liACqo&list=WL&index=1&t=12797s)
+
+The implementation in this repository is part of my hands-on learning process, following the author's project flow and rebuilding the product feature by feature.
 
 ## Trigger.dev
 

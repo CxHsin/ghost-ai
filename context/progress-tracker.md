@@ -12,6 +12,7 @@ Update this file whenever the current phase, active feature, or implementation s
 
 ## Completed
 
+- Updated `README.md` to describe the project at a high level and explicitly credit that this repository was built step by step by following the linked YouTube author's project as a learning exercise.
 - Cleaned up the default Next.js starter boilerplate in `app/` and `public/`.
 - Installed and configured `shadcn/ui` with the `radix-nova` preset plus `lucide-react`.
 - Generated protected foundation primitives in `components/ui/`: `Button`, `Card`, `Dialog`, `Input`, `Tabs`, `Textarea`, and `ScrollArea`.
