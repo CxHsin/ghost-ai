@@ -58,6 +58,7 @@ export function useCanvasAutosave({
   const resetStatusTimeoutRef = useRef<number | null>(null);
   const lastSavedSnapshotRef = useRef<string | null>(null);
   const inFlightSnapshotRef = useRef<string | null>(null);
+  const inFlightRequestAbortRef = useRef<AbortController | null>(null);
   const latestEdgesRef = useRef(edges);
   const latestNodesRef = useRef(nodes);
   const activeSaveRequestIdRef = useRef(0);
@@ -87,6 +88,8 @@ export function useCanvasAutosave({
 
   useEffect(() => {
     return () => {
+      inFlightRequestAbortRef.current?.abort();
+      inFlightRequestAbortRef.current = null;
       isMountedRef.current = false;
       clearStatusResetTimeout();
     };
@@ -105,12 +108,14 @@ export function useCanvasAutosave({
         return;
       }
 
+      inFlightRequestAbortRef.current?.abort();
       const saveRequestId = activeSaveRequestIdRef.current + 1;
       activeSaveRequestIdRef.current = saveRequestId;
       inFlightSnapshotRef.current = serializedSnapshot;
       clearStatusResetTimeout();
       setSaveStatus("saving");
       const requestAbortController = new AbortController();
+      inFlightRequestAbortRef.current = requestAbortController;
       let didTimeout = false;
       let removeAbortListener: (() => void) | null = null;
       const timeoutId = window.setTimeout(() => {
@@ -148,6 +153,9 @@ export function useCanvasAutosave({
       } catch (error) {
         window.clearTimeout(timeoutId);
         removeAbortListener?.();
+        if (inFlightRequestAbortRef.current === requestAbortController) {
+          inFlightRequestAbortRef.current = null;
+        }
         if (inFlightSnapshotRef.current === serializedSnapshot) {
           inFlightSnapshotRef.current = null;
         }
@@ -169,6 +177,9 @@ export function useCanvasAutosave({
 
       window.clearTimeout(timeoutId);
       removeAbortListener?.();
+      if (inFlightRequestAbortRef.current === requestAbortController) {
+        inFlightRequestAbortRef.current = null;
+      }
 
       if (!response.ok) {
         if (inFlightSnapshotRef.current === serializedSnapshot) {
@@ -225,6 +236,8 @@ export function useCanvasAutosave({
 
   useEffect(() => {
     if (!enabled) {
+      inFlightRequestAbortRef.current?.abort();
+      inFlightRequestAbortRef.current = null;
       hasInitializedRef.current = false;
       lastSavedSnapshotRef.current = null;
       inFlightSnapshotRef.current = null;
