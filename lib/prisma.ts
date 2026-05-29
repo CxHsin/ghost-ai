@@ -7,6 +7,20 @@ const globalForPrisma = globalThis as {
   prisma?: PrismaClient;
 };
 
+function isAccelerateUrl(databaseUrl: string) {
+  return databaseUrl.startsWith("prisma+postgres://");
+}
+
+function isPrismaHostedPostgresUrl(databaseUrl: string) {
+  try {
+    const parsedUrl = new URL(databaseUrl);
+
+    return parsedUrl.hostname.endsWith(".db.prisma.io");
+  } catch {
+    return false;
+  }
+}
+
 function createPrismaClient() {
   const databaseUrl = process.env.DATABASE_URL;
 
@@ -14,7 +28,7 @@ function createPrismaClient() {
     throw new Error("DATABASE_URL is not set.");
   }
 
-  if (databaseUrl.startsWith("prisma+postgres://")) {
+  if (isAccelerateUrl(databaseUrl)) {
     return new PrismaClient({
       accelerateUrl: databaseUrl,
     });
@@ -22,9 +36,20 @@ function createPrismaClient() {
 
   const pool = new Pool({
     connectionString: databaseUrl,
+    connectionTimeoutMillis: 10_000,
+    idleTimeoutMillis: 30_000,
+    max: isPrismaHostedPostgresUrl(databaseUrl) ? 1 : 10,
+    maxLifetimeSeconds: isPrismaHostedPostgresUrl(databaseUrl) ? 60 : 0,
   });
 
-  const adapter = new PrismaPg(pool);
+  const adapter = new PrismaPg(pool, {
+    onConnectionError: (error) => {
+      console.error("Prisma pg connection error.", error);
+    },
+    onPoolError: (error) => {
+      console.error("Prisma pg pool error.", error);
+    },
+  });
 
   return new PrismaClient({
     adapter,

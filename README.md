@@ -1,5 +1,15 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Trigger.dev
+
+Trigger.dev is configured for background workflows in this project.
+
+1. Set `TRIGGER_PROJECT_REF` and `TRIGGER_SECRET_KEY` in `.env`.
+2. Start the local Trigger.dev worker with `npm run trigger:dev`.
+3. Deploy workflows with `npm run trigger:deploy`.
+
+The Trigger.dev config lives in `trigger.config.ts`, and background tasks live in `trigger/`.
+
 ## Getting Started
 
 First, run the development server:

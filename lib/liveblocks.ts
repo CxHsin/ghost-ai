@@ -58,6 +58,14 @@ export function getCursorColorForUserId(userId: string) {
   return CURSOR_COLOR_PALETTE[Math.abs(hash) % CURSOR_COLOR_PALETTE.length];
 }
 
+export async function ensureLiveblocksRoomExists(roomId: string) {
+  const liveblocks = getLiveblocksClient();
+
+  return liveblocks.getOrCreateRoom(roomId, {
+    defaultAccesses: [],
+  });
+}
+
 export async function ensureLiveblocksProjectRoom({
   roomId,
   ownerId,

@@ -14,10 +14,10 @@ export default async function EditorPage() {
   ]);
 
   const collaboratorEmail = user?.primaryEmailAddress?.emailAddress ?? null;
-  const [ownedProjects, sharedProjects] = await Promise.all([
-    userId ? listProjectsForOwner(userId) : [],
-    collaboratorEmail ? listSharedProjectsForCollaboratorEmail(collaboratorEmail) : [],
-  ]);
+  const ownedProjects = userId ? await listProjectsForOwner(userId) : [];
+  const sharedProjects = collaboratorEmail
+    ? await listSharedProjectsForCollaboratorEmail(collaboratorEmail)
+    : [];
 
   return (
     <EditorHomeShell

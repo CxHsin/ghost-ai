@@ -74,6 +74,39 @@ export async function getAccessibleProjectCanvasRecord(
   });
 }
 
+export async function getProjectAccessStatus(
+  projectId: string,
+  identity: ProjectIdentity,
+) {
+  const existingProject = await prisma.project.findUnique({
+    where: {
+      id: projectId,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  if (!existingProject) {
+    return {
+      kind: "not_found",
+    } as const;
+  }
+
+  const project = await getAccessibleProject(projectId, identity);
+
+  if (!project) {
+    return {
+      kind: "forbidden",
+    } as const;
+  }
+
+  return {
+    kind: "success",
+    project,
+  } as const;
+}
+
 function buildProjectAccessWhere(
   projectId: string,
   identity: ProjectIdentity,

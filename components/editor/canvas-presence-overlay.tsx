@@ -2,15 +2,16 @@
 
 import { useAuth } from "@clerk/nextjs";
 import { useOthers } from "@liveblocks/react/suspense";
+import { LoaderCircle } from "lucide-react";
 
 const MAX_VISIBLE_COLLABORATORS = 5;
 
 interface PresenceParticipant {
   connectionId: number;
+  id?: string;
   info: {
     avatar?: string;
     color?: string;
-    id?: string;
     name?: string;
   };
   presence: {
@@ -18,6 +19,7 @@ interface PresenceParticipant {
       x: number;
       y: number;
     } | null;
+    thinking?: boolean;
   };
 }
 
@@ -99,10 +101,13 @@ function LiveCursor({ participant }: { participant: PresenceParticipant }) {
           />
         </svg>
         <div
-          className="absolute left-4 top-0 max-w-40 rounded-full px-2.5 py-1 text-[11px] font-medium whitespace-nowrap text-white shadow-lg shadow-black/30"
+          className="absolute left-4 top-0 flex max-w-40 items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-medium whitespace-nowrap text-white shadow-lg shadow-black/30"
           style={{ backgroundColor: color }}
         >
           {getParticipantName(participant)}
+          {participant.presence.thinking ? (
+            <LoaderCircle className="h-3 w-3 shrink-0 animate-spin" />
+          ) : null}
         </div>
       </div>
     </div>
@@ -118,7 +123,7 @@ export function CanvasPresenceOverlay({
 }: CanvasPresenceOverlayProps) {
   const { userId } = useAuth();
   const others = useOthers() as readonly PresenceParticipant[];
-  const collaborators = others.filter((participant) => participant.info.id !== userId);
+  const collaborators = others.filter((participant) => participant.id !== userId);
   const visibleCollaborators = collaborators.slice(0, MAX_VISIBLE_COLLABORATORS);
   const overflowCount = collaborators.length - visibleCollaborators.length;
 

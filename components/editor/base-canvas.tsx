@@ -19,7 +19,7 @@ import {
   Minus,
   Pill,
 } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Background,
   BackgroundVariant,
@@ -171,12 +171,14 @@ function ShapePanel({
 
 function BaseCanvasFlow({
   isAiSidebarOpen,
+  onCanvasSnapshotChange,
   onSaveActionChange,
   openTemplatesRequest,
   onSaveStatusChange,
   projectId,
 }: {
   isAiSidebarOpen?: boolean;
+  onCanvasSnapshotChange?: (snapshot: CanvasSnapshot) => void;
   onSaveActionChange?: (action: () => void) => void;
   openTemplatesRequest?: number;
   onSaveStatusChange?: (status: CanvasSaveIndicatorState) => void;
@@ -194,6 +196,7 @@ function BaseCanvasFlow({
   const [isTemplatesModalOpen, setIsTemplatesModalOpen] = useState(false);
   const [hasResolvedInitialCanvasLoad, setHasResolvedInitialCanvasLoad] = useState(false);
   const previousOpenTemplatesRequestRef = useRef(openTemplatesRequest);
+  const previousSnapshotSignatureRef = useRef<string | null>(null);
   const isDraggingShape = dragPreview !== null;
   const {
     edges,
@@ -221,10 +224,29 @@ function BaseCanvasFlow({
     projectId,
     treatInitialSnapshotAsSaved,
   });
+  const canvasSnapshot = useMemo(
+    () => createCanvasSnapshot(nodes, edges),
+    [edges, nodes],
+  );
 
   useEffect(() => {
     onSaveActionChange?.(triggerSave);
   }, [onSaveActionChange, triggerSave]);
+
+  useEffect(() => {
+    if (!onCanvasSnapshotChange) {
+      return;
+    }
+
+    const snapshotSignature = JSON.stringify(canvasSnapshot);
+
+    if (snapshotSignature === previousSnapshotSignatureRef.current) {
+      return;
+    }
+
+    previousSnapshotSignatureRef.current = snapshotSignature;
+    onCanvasSnapshotChange(canvasSnapshot);
+  }, [canvasSnapshot, onCanvasSnapshotChange]);
 
   const replaceCanvasSnapshot = useMutation(
     ({ storage }, snapshot: CanvasSnapshot) => {
@@ -782,12 +804,14 @@ function BaseCanvasFlow({
 
 export function BaseCanvas({
   isAiSidebarOpen,
+  onCanvasSnapshotChange,
   onSaveActionChange,
   openTemplatesRequest,
   onSaveStatusChange,
   projectId,
 }: {
   isAiSidebarOpen?: boolean;
+  onCanvasSnapshotChange?: (snapshot: CanvasSnapshot) => void;
   onSaveActionChange?: (action: () => void) => void;
   openTemplatesRequest?: number;
   onSaveStatusChange?: (status: CanvasSaveIndicatorState) => void;
@@ -798,6 +822,7 @@ export function BaseCanvas({
       <div className="h-full w-full overflow-hidden rounded-[inherit]">
         <BaseCanvasFlow
           isAiSidebarOpen={isAiSidebarOpen}
+          onCanvasSnapshotChange={onCanvasSnapshotChange}
           onSaveActionChange={onSaveActionChange}
           openTemplatesRequest={openTemplatesRequest}
           onSaveStatusChange={onSaveStatusChange}

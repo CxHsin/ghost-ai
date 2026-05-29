@@ -36,7 +36,7 @@ Implement the full AI design agent so a user prompt results in real-time updates
 
 ## Dependencies
 
-All packages are already installed.`GOOGLE_AI_API_KEY` is already in `.env.local`.
+All packages are already installed. Configure a Google Generative AI API key through `GOOGLE_GENERATIVE_AI_API_KEY` or the legacy-compatible `GOOGLE_AI_API_KEY` environment variable.
 
 ## Scope Limits
 

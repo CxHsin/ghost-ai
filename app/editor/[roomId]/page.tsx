@@ -45,12 +45,10 @@ export default async function EditorWorkspacePage({
     return <AccessDenied />;
   }
 
-  const [ownedProjects, sharedProjects] = await Promise.all([
-    listProjectsForOwner(identity.userId),
-    identity.primaryEmail
-      ? listSharedProjectsForCollaboratorEmail(identity.primaryEmail)
-      : [],
-  ]);
+  const ownedProjects = await listProjectsForOwner(identity.userId);
+  const sharedProjects = identity.primaryEmail
+    ? await listSharedProjectsForCollaboratorEmail(identity.primaryEmail)
+    : [];
 
   return (
     <EditorWorkspaceShell

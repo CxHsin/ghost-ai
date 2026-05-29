@@ -13,14 +13,22 @@ import { LoaderCircle, WifiOff } from "lucide-react";
 
 import { BaseCanvas } from "@/components/editor/base-canvas";
 import { Button } from "@/components/ui/button";
-import { type CanvasSaveIndicatorState } from "@/types/canvas";
+import {
+  type CanvasSaveIndicatorState,
+  type CanvasSnapshot,
+} from "@/types/canvas";
 
 interface EditorCanvasRoomProps {
   isAiSidebarOpen?: boolean;
+  onCanvasSnapshotChange?: (snapshot: CanvasSnapshot) => void;
   onSaveActionChange?: (action: () => void) => void;
   onSaveStatusChange?: (status: CanvasSaveIndicatorState) => void;
   openTemplatesRequest?: number;
   projectId: string;
+}
+
+interface EditorRoomProviderProps {
+  children: React.ReactNode;
   roomId: string;
 }
 
@@ -59,14 +67,7 @@ function CanvasErrorState({ message, onRetry }: CanvasErrorStateProps) {
   );
 }
 
-export function EditorCanvasRoom({
-  isAiSidebarOpen,
-  onSaveActionChange,
-  onSaveStatusChange,
-  openTemplatesRequest,
-  projectId,
-  roomId,
-}: EditorCanvasRoomProps) {
+export function EditorRoomProvider({ children, roomId }: EditorRoomProviderProps) {
   return (
     <LiveblocksProvider authEndpoint="/api/liveblocks-auth">
       <RoomProvider
@@ -76,30 +77,46 @@ export function EditorCanvasRoom({
           thinking: false,
         }}
       >
-        <ClientSideSuspense fallback={<CanvasLoadingState />}>
-          {() => (
-            <CanvasRoomContent
-              isAiSidebarOpen={isAiSidebarOpen}
-              onSaveActionChange={onSaveActionChange}
-              onSaveStatusChange={onSaveStatusChange}
-              openTemplatesRequest={openTemplatesRequest}
-              projectId={projectId}
-            />
-          )}
-        </ClientSideSuspense>
+        {children}
       </RoomProvider>
     </LiveblocksProvider>
   );
 }
 
+export function EditorCanvasRoom({
+  isAiSidebarOpen,
+  onCanvasSnapshotChange,
+  onSaveActionChange,
+  onSaveStatusChange,
+  openTemplatesRequest,
+  projectId,
+}: EditorCanvasRoomProps) {
+  return (
+    <ClientSideSuspense fallback={<CanvasLoadingState />}>
+      {() => (
+        <CanvasRoomContent
+          isAiSidebarOpen={isAiSidebarOpen}
+          onCanvasSnapshotChange={onCanvasSnapshotChange}
+          onSaveActionChange={onSaveActionChange}
+          onSaveStatusChange={onSaveStatusChange}
+          openTemplatesRequest={openTemplatesRequest}
+          projectId={projectId}
+        />
+      )}
+    </ClientSideSuspense>
+  );
+}
+
 function CanvasRoomContent({
   isAiSidebarOpen,
+  onCanvasSnapshotChange,
   onSaveActionChange,
   onSaveStatusChange,
   openTemplatesRequest,
   projectId,
 }: {
   isAiSidebarOpen?: boolean;
+  onCanvasSnapshotChange?: (snapshot: CanvasSnapshot) => void;
   onSaveActionChange?: (action: () => void) => void;
   onSaveStatusChange?: (status: CanvasSaveIndicatorState) => void;
   openTemplatesRequest?: number;
@@ -125,6 +142,7 @@ function CanvasRoomContent({
   return (
     <BaseCanvas
       isAiSidebarOpen={isAiSidebarOpen}
+      onCanvasSnapshotChange={onCanvasSnapshotChange}
       onSaveActionChange={onSaveActionChange}
       onSaveStatusChange={onSaveStatusChange}
       openTemplatesRequest={openTemplatesRequest}

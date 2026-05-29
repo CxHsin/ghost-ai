@@ -4,7 +4,10 @@ import { Share2, Sparkles } from "lucide-react";
 import { useState } from "react";
 
 import { AiSidebar } from "@/components/editor/ai-sidebar";
-import { EditorCanvasRoom } from "@/components/editor/editor-canvas-room";
+import {
+  EditorCanvasRoom,
+  EditorRoomProvider,
+} from "@/components/editor/editor-canvas-room";
 import { EditorNavbar } from "@/components/editor/editor-navbar";
 import { ProjectDialogs } from "@/components/editor/project-dialogs";
 import { type ProjectListItem } from "@/components/editor/project-list-item";
@@ -13,7 +16,10 @@ import { ShareDialog } from "@/components/editor/share-dialog";
 import { Button } from "@/components/ui/button";
 import { useProjectActions } from "@/hooks/use-project-actions";
 import { cn } from "@/lib/utils";
-import { type CanvasSaveIndicatorState } from "@/types/canvas";
+import {
+  type CanvasSaveIndicatorState,
+  type CanvasSnapshot,
+} from "@/types/canvas";
 
 interface WorkspaceProject {
   id: string;
@@ -36,6 +42,10 @@ export function EditorWorkspaceShell({
 }: EditorWorkspaceShellProps) {
   const [isAiSidebarOpen, setIsAiSidebarOpen] = useState(true);
   const [handleManualSave, setHandleManualSave] = useState<(() => void) | null>(null);
+  const [canvasSnapshot, setCanvasSnapshot] = useState<CanvasSnapshot>({
+    edges: [],
+    nodes: [],
+  });
   const [saveStatus, setSaveStatus] = useState<CanvasSaveIndicatorState>("idle");
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -114,17 +124,25 @@ export function EditorWorkspaceShell({
         />
 
         <div className="relative flex flex-1 overflow-hidden p-3 pt-4 sm:p-4">
-          <main className="relative flex flex-1 overflow-hidden rounded-3xl border border-surface-border bg-surface/50">
-            <EditorCanvasRoom
-              isAiSidebarOpen={isAiSidebarOpen}
-              onSaveActionChange={(action) => setHandleManualSave(() => action)}
-              onSaveStatusChange={setSaveStatus}
+          <EditorRoomProvider roomId={currentProject.roomId}>
+            <main className="relative flex flex-1 overflow-hidden rounded-3xl border border-surface-border bg-surface/50">
+              <EditorCanvasRoom
+                isAiSidebarOpen={isAiSidebarOpen}
+                onCanvasSnapshotChange={setCanvasSnapshot}
+                onSaveActionChange={(action) => setHandleManualSave(() => action)}
+                onSaveStatusChange={setSaveStatus}
+                projectId={currentProject.id}
+                openTemplatesRequest={openTemplatesRequest}
+              />
+            </main>
+            <AiSidebar
+              isOpen={isAiSidebarOpen}
+              onClose={() => setIsAiSidebarOpen(false)}
+              canvasSnapshot={canvasSnapshot}
               projectId={currentProject.id}
               roomId={currentProject.roomId}
-              openTemplatesRequest={openTemplatesRequest}
             />
-          </main>
-          <AiSidebar isOpen={isAiSidebarOpen} onClose={() => setIsAiSidebarOpen(false)} />
+          </EditorRoomProvider>
         </div>
       </div>
 
